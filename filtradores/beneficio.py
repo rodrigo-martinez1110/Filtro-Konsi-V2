@@ -21,8 +21,9 @@ def filtro_beneficio(base, convenio, quant_bancos, comissao_minima, margem_empre
 
     #================================================= ESPECIFICIDADES DE CONVENIOS =================================================#
     if convenio == 'govam':
-        base['MG_Beneficio_Saque_Disponivel'] = base['MG_Beneficio_Compra_Disponivel']
         base = base.loc[base['MG_Beneficio_Compra_Disponivel'] == base['MG_Beneficio_Compra_Total']]
+        base['MG_Beneficio_Saque_Disponivel'] = base['MG_Beneficio_Compra_Disponivel']
+        
 
     elif convenio == 'govsp':
         base = base[base['Lotacao'] != "ALESP"]
@@ -32,6 +33,8 @@ def filtro_beneficio(base, convenio, quant_bancos, comissao_minima, margem_empre
 
     elif convenio != 'prefrj' or convenio == 'govpi':
         base = base.loc[base['MG_Beneficio_Saque_Disponivel'] == base['MG_Beneficio_Saque_Total']]
+
+    base = base.sort_values(by='MG_Beneficio_Saque_Disponivel', ascending = False)
     
     #================================================================================================================================#
 

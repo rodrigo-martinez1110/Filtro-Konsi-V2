@@ -1,8 +1,11 @@
 import streamlit as st
 import pandas as pd
 from juntar_bases import juntar_bases
+
 from filtradores.novo import filtro_novo
 from filtradores.beneficio import filtro_beneficio
+from filtradores.cartao import filtro_cartao
+from filtradores.beneficio_cartao import filtro_beneficio_e_cartao
 
 
 
@@ -21,16 +24,22 @@ if arquivos:
     if not base.empty:
         st.write("Prévia dos dados carregados:")
         st.write(base.head(50))
+        
 
         # Seleção do tipo de campanha
         st.sidebar.title("Configurações Iniciais")
         campanha = st.sidebar.selectbox("Tipo da Campanha:", ['Novo', 'Benefício', 'Cartão', 'Benefício & Cartão'])
-
+        if campanha == 'Benefício & Cartão':
+            quantidade_de_bancos = 2
+        else:
+            quantidade_de_bancos = 1
         # Seleção da quantidade de bancos
-        quant_bancos = st.sidebar.number_input("Quantidade de Bancos:", min_value=1, max_value=10, step=1, value=1)
+        quant_bancos = st.sidebar.number_input("Quantidade de Bancos:", min_value=1, max_value=10, step=1, value=quantidade_de_bancos)
 
         comissao_minima = st.sidebar.number_input(f"Comissão mínima da campanha {campanha}:")
         margem_emprestimo_limite = st.sidebar.number_input(f"Margem de empréstimo limite da campanha {campanha}:")
+
+        st.write("------")
 
         botao_lotacao = st.sidebar.checkbox("Retirar lotações")
 
@@ -62,17 +71,29 @@ if arquivos:
             # Loop dinâmico para configurar cada banco
             for i in range(quant_bancos):
                 with st.expander(f"Configurações do Banco {i + 1}"):
-                    banco = st.selectbox(f"Selecione o Banco {i + 1}:", 
-                                         options=lista_codigos_bancos, 
-                                         key=f"banco_{i}")
-                    coeficiente = st.number_input(f"Coeficiente Banco {i + 1}:", min_value=0.0, max_value=100.0, step=0.01, key=f"coeficiente_{i}")
-                    comissao = st.number_input(f"Comissão Banco {i + 1} (%):", min_value=0.0, max_value=100.0, step=0.01, key=f"comissao_{i}")
-                    parcelas = st.number_input(f"Parcelas Banco {i + 1}:", min_value=1, max_value=200, step=1, key=f"parcelas_{i}")
-
-                    if campanha == 'Novo':
-                        margem_seguranca = st.checkbox("Margem Segurança", value=False, key=f"margem_seguranca{i}")
-
-                    if campanha == 'Benefício':
+                    if campanha == 'Benefício & Cartão':
+                        opcao = st.radio("Escolha o tipo de cartão:", ['Benefício', 'Consignado'],
+                                         key=f'opcao{i}')
+                        banco = st.selectbox(f"Selecione o Banco {i + 1}:", 
+                                            options=lista_codigos_bancos, 
+                                            key=f"banco_{i}")
+                        coeficiente = st.number_input(f"Coeficiente {opcao} no Banco {i+1}:",
+                                                      min_value=0.0,
+                                                      max_value=100.0,
+                                                      step=0.01,
+                                                      key=f'coeficiente_{i}'
+                                                      )
+                        coeficiente2 = None
+                        if convenio == 'goval':
+                            coeficiente2 = st.number_input(f"Coeficiente Banco {i + 1}:",
+                                                           min_value=0.0,
+                                                           max_value=100.0,
+                                                           step=0.01,
+                                                           key=f"coeficiente2_{i}")
+                        comissao = st.number_input(f"Comissão {opcao} Banco {i + 1} (%):", min_value=0.0, max_value=100.0, step=0.01, key=f"comissao_{i}")
+                        
+                        parcelas = st.number_input(f"Parcelas {opcao} Banco {i + 1}:", min_value=1, max_value=200, step=1, key=f"parcelas_{i}")
+                        
                         coeficiente_parcela_str = st.text_input(f"Coeficiente da Parcela Banco {i + 1}:", key=f"coeficiente_parcela{i}")
                         coeficiente_parcela_str = coeficiente_parcela_str.replace(",", ".")
                         try:
@@ -83,11 +104,48 @@ if arquivos:
                         except ValueError:
                             st.error("Por favor, insira um valor numérico válido.")
                             coeficiente_parcela = None  # Ou qualquer outro valor padrão ou erro
+
+                        margem_minima_cartao = st.number_input(f"Margem Mínima {opcao} {i + 1}:",
+                                                           min_value=0.0,
+                                                           max_value=10000.0,
+                                                           step=0.01,
+                                                           key=f"coeficiente2_{i}",
+                                                           value=30.0)
+
+                    else:
+                        banco = st.selectbox(f"Selecione o Banco {i + 1}:", 
+                                            options=lista_codigos_bancos, 
+                                            key=f"banco_{i}")
+                        coeficiente = st.number_input(f"Coeficiente Banco {i + 1}:", min_value=0.0, max_value=100.0, step=0.01, key=f"coeficiente_{i}")
+                        coeficiente2 = None
+                        if convenio == 'goval':
+                            coeficiente2 = st.number_input(f"Coeficiente Banco {i + 1}:", min_value=0.0, max_value=100.0, step=0.01, key=f"coeficiente2_{i}")
+                        comissao = st.number_input(f"Comissão Banco {i + 1} (%):", min_value=0.0, max_value=100.0, step=0.01, key=f"comissao_{i}")
+                        parcelas = st.number_input(f"Parcelas Banco {i + 1}:", min_value=1, max_value=200, step=1, key=f"parcelas_{i}")
+
+                        if campanha == 'Novo':
+                            margem_seguranca = st.checkbox("Margem Segurança", value=False, key=f"margem_seguranca{i}")
+
+                        if campanha == 'Benefício':
+                            coeficiente_parcela_str = st.text_input(f"Coeficiente da Parcela Banco {i + 1}:", key=f"coeficiente_parcela{i}")
+                            coeficiente_parcela_str = coeficiente_parcela_str.replace(",", ".")
+                            try:
+                                coeficiente_parcela = float(coeficiente_parcela_str)
+                                if coeficiente_parcela < 0.0 or coeficiente_parcela > 100.0:
+                                    st.error("O coeficiente deve estar entre 0 e 100.")
+                                    coeficiente_parcela = None  # Ou qualquer outro valor padrão ou erro
+                            except ValueError:
+                                st.error("Por favor, insira um valor numérico válido.")
+                                coeficiente_parcela = None  # Ou qualquer outro valor padrão ou erro
+                    
+                    
+
+                    
                     # Escolha de coluna condicional
                     coluna_condicao = st.selectbox('Selecione a coluna condicional para aplicar configurações:',
                                                    options=colunas_condicao,
                                                    key=f"coluna_{i}")
-                    
+
                     # Valores únicos disponíveis na coluna selecionada
                     if coluna_condicao != "Aplicar a toda a base":
                         usar_palavra_chave = st.checkbox(
@@ -128,11 +186,26 @@ if arquivos:
                         configuracoes.append({
                             "Banco": banco,
                             "Coeficiente": coeficiente,
+                            "Coeficiente2": coeficiente2,
                             "Comissão": comissao,
                             "Parcelas": parcelas,
                             "Coluna Condicional": coluna_condicao,
                             "Valor Condicional": valor_condicao,
                             "Coeficiente_Parcela": coeficiente_parcela,
+                        })
+                    
+                    elif campanha == 'Benefício & Cartão':
+                        configuracoes.append({
+                            "Cartao_Escolhido": opcao,
+                            "Banco": banco,
+                            "Coeficiente": coeficiente,
+                            "Coeficiente2": coeficiente2,
+                            "Comissão": comissao,
+                            "Parcelas": parcelas,
+                            "Coluna Condicional": coluna_condicao,
+                            "Valor Condicional": valor_condicao,
+                            "Coeficiente_Parcela": coeficiente_parcela,
+                            "Margem_Minima_Cartao": margem_minima_cartao
                         })
             
             st.write(campanha)
@@ -145,6 +218,17 @@ if arquivos:
                     base_filtrada = filtro_beneficio(base, convenio, quant_bancos,
                                                         comissao_minima, margem_emprestimo_limite, selecao_lotacao,
                                                         selecao_vinculos, configuracoes)
+                elif campanha == 'cartao':
+                    base_filtrada = filtro_cartao(base, convenio, quant_bancos,
+                                                  comissao_minima, margem_emprestimo_limite,
+                                                  selecao_lotacao, selecao_vinculos,
+                                                  configuracoes)
+                
+                elif campanha == 'Benefício & Cartão':
+                    base_filtrada = filtro_beneficio_e_cartao(base, convenio, quant_bancos,
+                                                              comissao_minima, margem_emprestimo_limite,
+                                                              selecao_lotacao, selecao_vinculos,
+                                                              configuracoes)
                     
 
                 
