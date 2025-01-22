@@ -119,7 +119,7 @@ if arquivos:
                         coeficiente = st.number_input(f"Coeficiente Banco {i + 1}:", min_value=0.0, max_value=100.0, step=0.01, key=f"coeficiente_{i}")
                         coeficiente2 = None
                         if convenio == 'goval' and (campanha == 'Benefício' or campanha == 'Benefício & Cartão'):
-                            coeficiente2 = st.number_input(f"Coeficiente Banco {i + 1}:", min_value=0.0, max_value=100.0, step=0.01, key=f"coeficiente2_{i}")
+                            coeficiente2 = st.number_input(f"Coeficiente 2 Banco {i + 1}:", min_value=0.0, max_value=100.0, step=0.01, key=f"coeficiente2_{i}")
                         comissao = st.number_input(f"Comissão Banco {i + 1} (%):", min_value=0.0, max_value=100.0, step=0.01, key=f"comissao_{i}")
                         parcelas = st.number_input(f"Parcelas Banco {i + 1}:", min_value=1, max_value=200, step=1, key=f"parcelas_{i}")
 

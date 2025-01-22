@@ -121,7 +121,6 @@ def filtro_beneficio_e_cartao(base, convenio, quant_bancos, comissao_minima, mar
                          (base['MG_Beneficio_Saque_Total'] == base['MG_Beneficio_Saque_Disponivel']) &
                          (mask),
                          'valor_liberado_beneficio'] = (base.loc[mask, 'MG_Beneficio_Saque_Disponivel'] * coeficiente1).round(2)
-                base.loc[mask, 'valor_parcela_beneficio'] = (base.loc[mask, 'MG_Beneficio_Saque_Disponivel'] / coeficiente_parcela).round(2)
                 base.loc[mask, 'valor_parcela_beneficio'] = (base.loc[mask, 'valor_liberado_beneficio'] / coeficiente_parcela).round(2)
             elif cartao_escolhido == 'Consignado':
                 base.loc[(base['MG_Cartao_Disponivel'] >= margem_minima_cartao),
