@@ -84,9 +84,8 @@ def filtro_cartao(base, convenio, quant_bancos, comissao_minima, margem_empresti
         'prazo_emprestimo', 'prazo_beneficio', 'Campanha'
     ]
 
-
-
-    for coluna in colunas_adicionais:
+for coluna in colunas_adicionais:
+    if coluna not in base.columns:
         base[coluna] = ""
 
     colunas = [
