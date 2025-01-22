@@ -229,6 +229,9 @@ if arquivos:
                                                               comissao_minima, margem_emprestimo_limite,
                                                               selecao_lotacao, selecao_vinculos,
                                                               configuracoes)
+
+                st.write("Ola")
+                st.write(base_filtrada.head(3))
                     
 
                 
