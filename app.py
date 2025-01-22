@@ -85,7 +85,7 @@ if arquivos:
                                                       )
                         coeficiente2 = None
                         if convenio == 'goval' and (campanha == 'Benefício' or campanha == 'Benefício & Cartão'):
-                            coeficiente2 = st.number_input(f"Coeficiente Banco {i + 1}:",
+                            coeficiente2 = st.number_input(f"Coeficiente 2 Banco {i + 1}:",
                                                            min_value=0.0,
                                                            max_value=100.0,
                                                            step=0.01,
