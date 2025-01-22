@@ -126,7 +126,7 @@ if arquivos:
                         if campanha == 'Novo':
                             margem_seguranca = st.checkbox("Margem Segurança", value=False, key=f"margem_seguranca{i}")
 
-                        if campanha == 'Benefício':
+                        if campanha == 'Benefício' or campanha == 'Cartão':
                             coeficiente_parcela_str = st.text_input(f"Coeficiente da Parcela Banco {i + 1}:", key=f"coeficiente_parcela{i}")
                             coeficiente_parcela_str = coeficiente_parcela_str.replace(",", ".")
                             try:
