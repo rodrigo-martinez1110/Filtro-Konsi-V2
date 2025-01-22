@@ -54,9 +54,11 @@ def filtro_cartao(base, convenio, quant_bancos, comissao_minima, margem_empresti
         if convenio == 'govsp':
             base.loc[mask, 'valor_liberado_cartao'] = (base.loc[mask, 'MG_Cartao_Disponivel'] * coeficiente).round(2)
             base.loc[(base['valor_liberado_cartao'] != 0) & (base['Matricula'].isin(usou_cartao['Matricula'])), 'valor_liberado_cartao'] = 0
+            base.loc[mask, 'valor_parcela_cartao'] = (base.loc[mask, 'valor_liberado_cartao'] / coeficiente_parcela).round(2)
+            base.loc[(base['valor_liberado_cartao'] == 0) & (base['Matricula'].isin(usou_cartao['Matricula'])), 'valor_parcela_cartao'] = 0
         else:
             base.loc[mask, 'valor_liberado_cartao'] = (base.loc[mask, 'MG_Cartao_Disponivel'] * coeficiente).round(2)
-            base.loc[mask, 'valor_parcela_cartao'] = (base.loc[mask, 'MG_Cartao_Disponivel'] / coeficiente_parcela).round(2)
+            base.loc[mask, 'valor_parcela_cartao'] = (base.loc[mask, 'valor_liberado_cartao'] / coeficiente_parcela).round(2)
 
         base.loc[mask, 'comissao_cartao'] = (base.loc[mask, 'valor_liberado_cartao'] * comissao).round(2)
         base.loc[mask, 'banco_cartao'] = banco
