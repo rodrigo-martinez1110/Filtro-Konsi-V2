@@ -218,7 +218,7 @@ if arquivos:
                     base_filtrada = filtro_beneficio(base, convenio, quant_bancos,
                                                         comissao_minima, margem_emprestimo_limite, selecao_lotacao,
                                                         selecao_vinculos, configuracoes)
-                elif campanha == 'cartao':
+                elif campanha == 'Cartão':
                     base_filtrada = filtro_cartao(base, convenio, quant_bancos,
                                                   comissao_minima, margem_emprestimo_limite,
                                                   selecao_lotacao, selecao_vinculos,
@@ -230,8 +230,6 @@ if arquivos:
                                                               selecao_lotacao, selecao_vinculos,
                                                               configuracoes)
 
-                st.write("Ola")
-                st.write(base_filtrada.head(3))
                     
 
                 
