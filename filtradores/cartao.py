@@ -19,14 +19,12 @@ def filtro_cartao(base, convenio, quant_bancos, comissao_minima, margem_empresti
     if selecao_vinculos:
         base = base.loc[~base['Vinculo_Servidor'].isin(selecao_vinculos)]
 
-    #================================================= ESPECIFICIDADES DE CONVENIOS =================================================#
+    # Especificidades de convênios
     base = base.loc[base['MG_Cartao_Total'] == base['MG_Cartao_Disponivel']]
     if convenio == 'govsp':
         base = base[base['Lotacao'] != "ALESP"]
         base['margem_cartao_usado'] = base['MG_Cartao_Total'] - base['MG_Cartao_Disponivel']
         usou_cartao = base.loc[base['margem_cartao_usado'] > 0]
-    #================================================================================================================================#
-
 
     # Criar uma máscara para rastrear linhas já tratadas
     base['tratado'] = False
@@ -42,13 +40,10 @@ def filtro_cartao(base, convenio, quant_bancos, comissao_minima, margem_empresti
 
         if coluna_condicional != "Aplicar a toda a base":
             if isinstance(valor_condicional, str):
-                # Máscara para linhas que contêm a palavra-chave na coluna condicional
                 mask = (base[coluna_condicional].str.contains(valor_condicional, na=False, case=False)) & (~base['tratado'])
             else:
-                # Máscara para as linhas que atendem à condição específica
                 mask = (base[coluna_condicional].isin(valor_condicional)) & (~base['tratado'])
         else:
-            # Máscara para todas as linhas não tratadas
             mask = ~base['tratado']
 
         if convenio == 'govsp':
@@ -64,9 +59,7 @@ def filtro_cartao(base, convenio, quant_bancos, comissao_minima, margem_empresti
         base.loc[mask, 'banco_cartao'] = banco
         base.loc[mask, 'prazo_cartao'] = parcelas
         base['prazo_cartao'] = base['prazo_cartao'].astype(int)
-        
 
-        # Marcar essas linhas como tratadas
         base.loc[mask, 'tratado'] = True
 
     base = base.loc[base['MG_Emprestimo_Disponivel'] < margem_emprestimo_limite]
@@ -84,9 +77,9 @@ def filtro_cartao(base, convenio, quant_bancos, comissao_minima, margem_empresti
         'prazo_emprestimo', 'prazo_beneficio', 'Campanha'
     ]
 
-for coluna in colunas_adicionais:
-    if coluna not in base.columns:
-        base[coluna] = ""
+    for coluna in colunas_adicionais:
+        if coluna not in base.columns:
+            base[coluna] = ""
 
     colunas = [
         'Origem_Dado', 'Nome_Cliente', 'Matricula', 'CPF', 'Data_Nascimento',
@@ -103,7 +96,6 @@ for coluna in colunas_adicionais:
         'Campanha'
     ]
     base = base[colunas]
-
 
     mapeamento = {
         'Origem_Dado': 'ORIGEM DO DADO',
