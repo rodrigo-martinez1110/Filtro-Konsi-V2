@@ -114,10 +114,13 @@ if arquivos:
                                                            value=30.0)
 
                     else:
-                        banco = st.selectbox(f"Selecione o Banco {i + 1}:", 
-                                            options=lista_codigos_bancos, 
-                                            key=f"banco_{i}")
-                        coeficiente = st.number_input(f"Coeficiente Banco {i + 1}:", min_value=0.0, max_value=100.0, step=0.01, key=f"coeficiente_{i}")
+                        banco = st.selectbox(f"Selecione o Banco {i + 1}:",
+                                options=lista_codigos_bancos, 
+                                key=f"banco_{i}_{campanha}")
+                        coeficiente = st.number_input(f"Coeficiente Banco {i + 1}:",
+                                                    min_value=0.0, max_value=100.0, step=0.01, 
+                                                    key=f"coeficiente_{i}_{campanha}")  # Chave única   
+                                            
                         coeficiente2 = None
                         if convenio == 'goval' and (campanha == 'Benefício' or campanha == 'Benefício & Cartão'):
                             coeficiente2 = st.number_input(f"Coeficiente 2 Banco {i + 1}:", min_value=0.0, max_value=100.0, step=0.01, key=f"coeficiente2_{i}")
