@@ -2,7 +2,7 @@ import pandas as pd
 import streamlit as st
 from datetime import datetime
 
-def filtro_novo(base, convenio, quant_bancos, comissao_minima, margem_emprestimo_limite, selecao_lotacao, selecao_vinculos, configuracoes):
+def filtro_novo(base, convenio, quant_bancos, comissao_minima, margem_emprestimo_limite, ano_nascimento_maximo, selecao_lotacao, selecao_vinculos, configuracoes):
     if base.empty:
         st.error("Erro: A base está vazia!")
         return pd.DataFrame()
@@ -72,15 +72,16 @@ def filtro_novo(base, convenio, quant_bancos, comissao_minima, margem_emprestimo
 
         
 
-    # Filtrar comissões e margens
+    # Filtrar com base nas configurações
     base = base.loc[base['MG_Emprestimo_Disponivel'] >= margem_emprestimo_limite]
+    base = base[base['Data_Nascimento'].dt.year >= ano_nascimento_maximo]
     base = base.loc[base['comissao_emprestimo'] >= comissao_minima]
 
     # Ordenar e remover duplicados
     base = base.sort_values(by='valor_liberado_emprestimo', ascending=False)
     base = base.drop_duplicates(subset='CPF')
 
-    # Adicionar colunas adicionais
+    # Adicionar colunas extras
     colunas_adicionais = [
         'FONE1', 'FONE2', 'FONE3', 'FONE4',
         'valor_liberado_beneficio', 'valor_liberado_cartao',

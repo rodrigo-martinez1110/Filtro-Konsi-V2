@@ -33,11 +33,17 @@ if arquivos:
             quantidade_de_bancos = 2
         else:
             quantidade_de_bancos = 1
-        # Seleção da quantidade de bancos
-        quant_bancos = st.sidebar.number_input("Quantidade de Bancos:", min_value=1, max_value=10, step=1, value=quantidade_de_bancos)
 
+        # Configurações adicionais
+        quant_bancos = st.sidebar.number_input("Quantidade de Bancos:", min_value=1, max_value=10, step=1, value=quantidade_de_bancos)
         comissao_minima = st.sidebar.number_input(f"Comissão mínima da campanha {campanha}:")
-        margem_emprestimo_limite = st.sidebar.number_input(f"Margem de empréstimo limite da campanha {campanha}:")
+        margem_emprestimo_limite = st.sidebar.number_input(f"Margem de empréstimo mínima da campanha {campanha}:")
+        base['Data_Nascimento'] = pd.to_datetime(base['Data_Nascimento'], format = '%d/%m/%Y')
+        ano_nascimento_maximo = st.sidebar.slider(f"Ano de nascimento máximo da campanha:",
+                                                  min_value=int(base['Data_Nascimento'].dt.year.min()),
+                                                  max_value=int(base['Data_Nascimento'].dt.year.max()),
+                                                  value=int(base['Data_Nascimento'].dt.year.min()))
+
 
         st.write("------")
 
@@ -212,22 +218,20 @@ if arquivos:
             if st.button("Aplicar configurações"): 
                 if campanha == 'Novo':
                     base_filtrada = filtro_novo(base, convenio, quant_bancos,
-                                                    comissao_minima, margem_emprestimo_limite, selecao_lotacao,
+                                                    comissao_minima, margem_emprestimo_limite, ano_nascimento_maximo, selecao_lotacao,
                                                     selecao_vinculos, configuracoes)
                 elif campanha == 'Benefício':
                     base_filtrada = filtro_beneficio(base, convenio, quant_bancos,
-                                                        comissao_minima, margem_emprestimo_limite, selecao_lotacao,
+                                                        comissao_minima, margem_emprestimo_limite, ano_nascimento_maximo, selecao_lotacao,
                                                         selecao_vinculos, configuracoes)
                 elif campanha == 'cartao':
                     base_filtrada = filtro_cartao(base, convenio, quant_bancos,
-                                                  comissao_minima, margem_emprestimo_limite,
-                                                  selecao_lotacao, selecao_vinculos,
+                                                  comissao_minima, margem_emprestimo_limite, ano_nascimento_maximo,                                                   selecao_lotacao, selecao_vinculos,
                                                   configuracoes)
                 
                 elif campanha == 'Benefício & Cartão':
                     base_filtrada = filtro_beneficio_e_cartao(base, convenio, quant_bancos,
-                                                              comissao_minima, margem_emprestimo_limite,
-                                                              selecao_lotacao, selecao_vinculos,
+                                                              comissao_minima, margem_emprestimo_limite, ano_nascimento_maximo,                                                               selecao_lotacao, selecao_vinculos,
                                                               configuracoes)
                     
 

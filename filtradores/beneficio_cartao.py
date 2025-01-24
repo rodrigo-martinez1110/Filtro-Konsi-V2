@@ -2,7 +2,7 @@ import pandas as pd
 import streamlit as st
 from datetime import datetime
 
-def filtro_beneficio_e_cartao(base, convenio, quant_bancos, comissao_minima, margem_emprestimo_limite, selecao_lotacao, selecao_vinculos, configuracoes):
+def filtro_beneficio_e_cartao(base, convenio, quant_bancos, comissao_minima, margem_emprestimo_limite, ano_nascimento_maximo, selecao_lotacao, selecao_vinculos, configuracoes):
     if base.empty:
         st.error("Erro: A base está vazia!")
         return pd.DataFrame()
@@ -148,7 +148,10 @@ def filtro_beneficio_e_cartao(base, convenio, quant_bancos, comissao_minima, mar
     
     base['comissao_total'] = (base['comissao_beneficio'] + base['comissao_cartao']).round(2)
     base = base.sort_values(by='comissao_total', ascending=False)
+
+    # Filtrar com base nas configurações
     base = base[base['comissao_total'] >= comissao_minima]
+    base = base[base['Data_Nascimento'].dt.year >= ano_nascimento_maximo]
     base = base.drop_duplicates(subset=['CPF'])
 
     if selecao_lotacao:

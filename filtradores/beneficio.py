@@ -2,7 +2,7 @@ import pandas as pd
 import streamlit as st
 from datetime import datetime
 
-def filtro_beneficio(base, convenio, quant_bancos, comissao_minima, margem_emprestimo_limite, selecao_lotacao, selecao_vinculos, configuracoes):
+def filtro_beneficio(base, convenio, quant_bancos, comissao_minima, margem_emprestimo_limite, ano_nascimento_maximo, selecao_lotacao, selecao_vinculos, configuracoes):
     if base.empty:
         st.error("Erro: A base está vazia!")
         return pd.DataFrame()
@@ -95,7 +95,10 @@ def filtro_beneficio(base, convenio, quant_bancos, comissao_minima, margem_empre
         # Marcar essas linhas como tratadas
         base.loc[mask, 'tratado'] = True
 
+
+    # Filtrar com base nas configurações
     base = base.loc[base['MG_Emprestimo_Disponivel'] < margem_emprestimo_limite]
+    base = base[base['Data_Nascimento'].dt.year >= ano_nascimento_maximo]
     base = base.loc[base['comissao_beneficio'] >= comissao_minima]
 
     base = base.sort_values(by='valor_liberado_beneficio', ascending=False)
