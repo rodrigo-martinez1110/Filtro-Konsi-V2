@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import openpyxl
 from juntar_bases import juntar_bases
 
 from filtradores.novo import filtro_novo
@@ -17,10 +18,12 @@ st.title("Filtro de Campanhas - Konsi")
 
 # Upload de arquivos
 arquivos = st.file_uploader('Arraste os arquivos CSV de higienização', accept_multiple_files=True, type=['csv'])
+nmp = st.file_uploader('Arraste o arquivo XLSX de NMP', accept_multiple_files=False, type=['xlsx'])
 
 if arquivos:
     # Junta as bases carregadas
     base = juntar_bases(arquivos)
+
     if not base.empty:
         st.write("Prévia dos dados carregados:")
         st.write(base.head(50))
@@ -215,22 +218,23 @@ if arquivos:
                         })
             
             st.write(campanha)
-            if st.button("Aplicar configurações"): 
+            if st.button("Aplicar configurações"):
+
                 if campanha == 'Novo':
-                    base_filtrada = filtro_novo(base, convenio, quant_bancos,
+                    base_filtrada = filtro_novo(base, nmp, convenio, quant_bancos,
                                                     comissao_minima, margem_emprestimo_limite, ano_nascimento_maximo, selecao_lotacao,
                                                     selecao_vinculos, configuracoes)
                 elif campanha == 'Benefício':
-                    base_filtrada = filtro_beneficio(base, convenio, quant_bancos,
+                    base_filtrada = filtro_beneficio(base, nmp, convenio, quant_bancos,
                                                         comissao_minima, margem_emprestimo_limite, ano_nascimento_maximo, selecao_lotacao,
                                                         selecao_vinculos, configuracoes)
                 elif campanha == 'cartao':
-                    base_filtrada = filtro_cartao(base, convenio, quant_bancos,
+                    base_filtrada = filtro_cartao(base, nmp, convenio, quant_bancos,
                                                   comissao_minima, margem_emprestimo_limite, ano_nascimento_maximo,                                                   selecao_lotacao, selecao_vinculos,
                                                   configuracoes)
                 
                 elif campanha == 'Benefício & Cartão':
-                    base_filtrada = filtro_beneficio_e_cartao(base, convenio, quant_bancos,
+                    base_filtrada = filtro_beneficio_e_cartao(base, nmp, convenio, quant_bancos,
                                                               comissao_minima, margem_emprestimo_limite, ano_nascimento_maximo,                                                               selecao_lotacao, selecao_vinculos,
                                                               configuracoes)
                     

@@ -2,7 +2,7 @@ import pandas as pd
 import streamlit as st
 from datetime import datetime
 
-def filtro_beneficio_e_cartao(base, convenio, quant_bancos, comissao_minima, margem_emprestimo_limite, ano_nascimento_maximo, selecao_lotacao, selecao_vinculos, configuracoes):
+def filtro_beneficio_e_cartao(base, nmp,convenio, quant_bancos, comissao_minima, margem_emprestimo_limite, ano_nascimento_maximo, selecao_lotacao, selecao_vinculos, configuracoes):
     if base.empty:
         st.error("Erro: A base está vazia!")
         return pd.DataFrame()
@@ -14,6 +14,7 @@ def filtro_beneficio_e_cartao(base, convenio, quant_bancos, comissao_minima, mar
 
     if 'Nome_Cliente' in base.columns and base['Nome_Cliente'].notna().any():
         base['Nome_Cliente'] = base['Nome_Cliente'].apply(lambda x: x.title() if isinstance(x, str) else x)
+
     
     base['CPF'] = base['CPF'].str.replace(".", "", regex=False).str.replace("-", "", regex=False)
 
@@ -153,6 +154,9 @@ def filtro_beneficio_e_cartao(base, convenio, quant_bancos, comissao_minima, mar
     base = base[base['comissao_total'] >= comissao_minima]
     base = base[base['Data_Nascimento'].dt.year >= ano_nascimento_maximo]
     base = base.drop_duplicates(subset=['CPF'])
+    if nmp:
+        lista_nmp = pd.read_excel(nmp)
+        base = base[~base['Nome_Cliente'].isin(lista_nmp['Cliente'])] 
 
     if selecao_lotacao:
         base = base.loc[~base['Lotacao'].isin(selecao_lotacao)]
