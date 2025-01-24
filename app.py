@@ -38,7 +38,7 @@ if arquivos:
         quant_bancos = st.sidebar.number_input("Quantidade de Bancos:", min_value=1, max_value=10, step=1, value=quantidade_de_bancos)
         comissao_minima = st.sidebar.number_input(f"Comissão mínima da campanha {campanha}:")
         margem_emprestimo_limite = st.sidebar.number_input(f"Margem de empréstimo mínima da campanha {campanha}:")
-        base['Data_Nascimento'] = pd.to_datetime(base['Data_Nascimento'], format = '%d/%m/%Y')
+        base['Data_Nascimento'] = pd.to_datetime(base['Data_Nascimento'], format = '%d/%m/%Y', errors='coerce')
         ano_nascimento_maximo = st.sidebar.slider(f"Ano de nascimento máximo da campanha:",
                                                   min_value=int(base['Data_Nascimento'].dt.year.min()),
                                                   max_value=int(base['Data_Nascimento'].dt.year.max()),
