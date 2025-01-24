@@ -7,8 +7,7 @@ def filtro_novo(base, convenio, quant_bancos, comissao_minima, margem_emprestimo
         st.error("Erro: A base está vazia!")
         return pd.DataFrame()
 
-    
-    
+
 
     #================================================= ESPECIFICIDADES DE CONVENIOS =================================================#
     if convenio == 'govsp':
@@ -17,7 +16,7 @@ def filtro_novo(base, convenio, quant_bancos, comissao_minima, margem_emprestimo
     elif convenio == 'govmt':
         base = base.loc[base['MG_Compulsoria_Disponivel'] >= 0]
     #================================================================================================================================#
-    
+
     # Garantir que apenas as primeiras 23 colunas sejam consideradas
     base = base.iloc[:, :23]
 
