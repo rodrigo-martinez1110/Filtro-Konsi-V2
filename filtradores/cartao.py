@@ -19,14 +19,12 @@ def filtro_cartao(base, nmp, convenio, quant_bancos, comissao_minima, margem_emp
     if selecao_vinculos:
         base = base.loc[~base['Vinculo_Servidor'].isin(selecao_vinculos)]
 
-    #================================================= ESPECIFICIDADES DE CONVENIOS =================================================#
+    # Especificidades de convênios
     base = base.loc[base['MG_Cartao_Total'] == base['MG_Cartao_Disponivel']]
     if convenio == 'govsp':
         base = base[base['Lotacao'] != "ALESP"]
         base['margem_cartao_usado'] = base['MG_Cartao_Total'] - base['MG_Cartao_Disponivel']
         usou_cartao = base.loc[base['margem_cartao_usado'] > 0]
-    #================================================================================================================================#
-
 
     # Criar uma máscara para rastrear linhas já tratadas
     base['tratado'] = False
@@ -42,29 +40,26 @@ def filtro_cartao(base, nmp, convenio, quant_bancos, comissao_minima, margem_emp
 
         if coluna_condicional != "Aplicar a toda a base":
             if isinstance(valor_condicional, str):
-                # Máscara para linhas que contêm a palavra-chave na coluna condicional
                 mask = (base[coluna_condicional].str.contains(valor_condicional, na=False, case=False)) & (~base['tratado'])
             else:
-                # Máscara para as linhas que atendem à condição específica
                 mask = (base[coluna_condicional].isin(valor_condicional)) & (~base['tratado'])
         else:
-            # Máscara para todas as linhas não tratadas
             mask = ~base['tratado']
 
         if convenio == 'govsp':
             base.loc[mask, 'valor_liberado_cartao'] = (base.loc[mask, 'MG_Cartao_Disponivel'] * coeficiente).round(2)
             base.loc[(base['valor_liberado_cartao'] != 0) & (base['Matricula'].isin(usou_cartao['Matricula'])), 'valor_liberado_cartao'] = 0
+            base.loc[mask, 'valor_parcela_cartao'] = (base.loc[mask, 'valor_liberado_cartao'] / coeficiente_parcela).round(2)
+            base.loc[(base['valor_liberado_cartao'] == 0) & (base['Matricula'].isin(usou_cartao['Matricula'])), 'valor_parcela_cartao'] = 0
         else:
             base.loc[mask, 'valor_liberado_cartao'] = (base.loc[mask, 'MG_Cartao_Disponivel'] * coeficiente).round(2)
-            base.loc[mask, 'valor_parcela_cartao'] = (base.loc[mask, 'MG_Cartao_Disponivel'] / coeficiente_parcela).round(2)
+            base.loc[mask, 'valor_parcela_cartao'] = (base.loc[mask, 'valor_liberado_cartao'] / coeficiente_parcela).round(2)
 
         base.loc[mask, 'comissao_cartao'] = (base.loc[mask, 'valor_liberado_cartao'] * comissao).round(2)
         base.loc[mask, 'banco_cartao'] = banco
         base.loc[mask, 'prazo_cartao'] = parcelas
         base['prazo_cartao'] = base['prazo_cartao'].astype(int)
-        
 
-        # Marcar essas linhas como tratadas
         base.loc[mask, 'tratado'] = True
 
     # Filtrar com base nas configurações
@@ -87,10 +82,9 @@ def filtro_cartao(base, nmp, convenio, quant_bancos, comissao_minima, margem_emp
         'prazo_emprestimo', 'prazo_beneficio', 'Campanha'
     ]
 
-
-
     for coluna in colunas_adicionais:
-        base[coluna] = ""
+        if coluna not in base.columns:
+            base[coluna] = ""
 
     colunas = [
         'Origem_Dado', 'Nome_Cliente', 'Matricula', 'CPF', 'Data_Nascimento',
@@ -107,7 +101,6 @@ def filtro_cartao(base, nmp, convenio, quant_bancos, comissao_minima, margem_emp
         'Campanha'
     ]
     base = base[colunas]
-
 
     mapeamento = {
         'Origem_Dado': 'ORIGEM DO DADO',

@@ -96,12 +96,13 @@ if arquivos:
                                                       key=f'coeficiente_{i}'
                                                       )
                         coeficiente2 = None
-                        if convenio == 'goval':
-                            coeficiente2 = st.number_input(f"Coeficiente Banco {i + 1}:",
-                                                           min_value=0.0,
-                                                           max_value=100.0,
-                                                           step=0.01,
-                                                           key=f"coeficiente2_{i}")
+                        if convenio == 'goval' and (campanha == 'Benefício' or campanha == 'Benefício & Cartão'):
+                            if opcao == 'Benefício':
+                                coeficiente2 = st.number_input(f"Coeficiente 2 Banco {i + 1}:",
+                                                            min_value=0.0,
+                                                            max_value=100.0,
+                                                            step=0.01,
+                                                            key=f"coeficiente2_{i + 1}")
                         comissao = st.number_input(f"Comissão {opcao} Banco {i + 1} (%):", min_value=0.0, max_value=100.0, step=0.01, key=f"comissao_{i}")
                         
                         parcelas = st.number_input(f"Parcelas {opcao} Banco {i + 1}:", min_value=1, max_value=200, step=1, key=f"parcelas_{i}")
@@ -121,24 +122,27 @@ if arquivos:
                                                            min_value=0.0,
                                                            max_value=10000.0,
                                                            step=0.01,
-                                                           key=f"coeficiente2_{i}",
+                                                           key=f"mg_minima{i}",
                                                            value=30.0)
 
                     else:
-                        banco = st.selectbox(f"Selecione o Banco {i + 1}:", 
-                                            options=lista_codigos_bancos, 
-                                            key=f"banco_{i}")
-                        coeficiente = st.number_input(f"Coeficiente Banco {i + 1}:", min_value=0.0, max_value=100.0, step=0.01, key=f"coeficiente_{i}")
+                        banco = st.selectbox(f"Selecione o Banco {i + 1}:",
+                                options=lista_codigos_bancos, 
+                                key=f"banco_{i}_{campanha}")
+                        coeficiente = st.number_input(f"Coeficiente Banco {i + 1}:",
+                                                    min_value=0.0, max_value=100.0, step=0.01, 
+                                                    key=f"coeficiente_{i}_{campanha}")  # Chave única   
+                                            
                         coeficiente2 = None
-                        if convenio == 'goval':
-                            coeficiente2 = st.number_input(f"Coeficiente Banco {i + 1}:", min_value=0.0, max_value=100.0, step=0.01, key=f"coeficiente2_{i}")
+                        if convenio == 'goval' and (campanha == 'Benefício' or campanha == 'Benefício & Cartão'):
+                            coeficiente2 = st.number_input(f"Coeficiente 2 Banco {i + 1}:", min_value=0.0, max_value=100.0, step=0.01, key=f"coeficiente2_{i}")
                         comissao = st.number_input(f"Comissão Banco {i + 1} (%):", min_value=0.0, max_value=100.0, step=0.01, key=f"comissao_{i}")
                         parcelas = st.number_input(f"Parcelas Banco {i + 1}:", min_value=1, max_value=200, step=1, key=f"parcelas_{i}")
 
                         if campanha == 'Novo':
                             margem_seguranca = st.checkbox("Margem Segurança", value=False, key=f"margem_seguranca{i}")
 
-                        if campanha == 'Benefício':
+                        if campanha == 'Benefício' or campanha == 'Cartão':
                             coeficiente_parcela_str = st.text_input(f"Coeficiente da Parcela Banco {i + 1}:", key=f"coeficiente_parcela{i}")
                             coeficiente_parcela_str = coeficiente_parcela_str.replace(",", ".")
                             try:
@@ -231,15 +235,17 @@ if arquivos:
                     base_filtrada = filtro_beneficio(base, nmp, convenio, quant_bancos,
                                                         comissao_minima, margem_emprestimo_limite, ano_nascimento_maximo, selecao_lotacao,
                                                         selecao_vinculos, configuracoes)
-                elif campanha == 'cartao':
-                    base_filtrada = filtro_cartao(base, nmp, convenio, quant_bancos,
-                                                  comissao_minima, margem_emprestimo_limite, ano_nascimento_maximo,                                                   selecao_lotacao, selecao_vinculos,
+                elif campanha == 'Cartão':
+                    base_filtrada = filtro_cartao(base, convenio, quant_bancos,
+                                                  comissao_minima, margem_emprestimo_limite,
+                                                  selecao_lotacao, selecao_vinculos,
                                                   configuracoes)
                 
                 elif campanha == 'Benefício & Cartão':
                     base_filtrada = filtro_beneficio_e_cartao(base, nmp, convenio, quant_bancos,
                                                               comissao_minima, margem_emprestimo_limite, ano_nascimento_maximo,                                                               selecao_lotacao, selecao_vinculos,
                                                               configuracoes)
+
                     
 
                 

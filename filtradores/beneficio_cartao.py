@@ -22,11 +22,9 @@ def filtro_beneficio_e_cartao(base, nmp,convenio, quant_bancos, comissao_minima,
         base = base[base['Lotacao'] != 'ALESP']
         base['margem_beneficio_usado'] = base['MG_Beneficio_Saque_Total'] - base['MG_Beneficio_Saque_Disponivel']
         base['margem_cartao_usada'] = base['MG_Cartao_Total'] - base['MG_Cartao_Disponivel']
-        base = base.loc[base['MG_Beneficio_Saque_Disponivel'] == base['MG_Beneficio_Saque_Total']]
         usou_beneficio = base.loc[base['margem_beneficio_usado'] > 0]
         usou_cartao = base.loc[base['margem_cartao_usada'] > 0]
-    elif convenio != 'prefrj' or convenio != 'govpi':
-        base = base.loc[base['MG_Beneficio_Saque_Disponivel'] == base['MG_Beneficio_Saque_Total']]
+
 
     base['tratado_beneficio'] = False
     base['tratado_cartao'] = False
@@ -62,31 +60,60 @@ def filtro_beneficio_e_cartao(base, nmp,convenio, quant_bancos, comissao_minima,
         
         if convenio == 'goval':
             if cartao_escolhido == 'Benefício':
-                condicao = (
-                                (base['MG_Beneficio_Saque_Disponivel'] == base['MG_Beneficio_Saque_Total']) &
-                                (base['MG_Beneficio_Compra_Disponivel'] == base['MG_Beneficio_Compra_Total'])
-                            )
-                base['coeficiente'] = coeficiente2
-                base.loc[condicao, 'coeficiente'] = coeficiente1
+                condicao_1 = (
+                    (base['MG_Beneficio_Saque_Disponivel'] == base['MG_Beneficio_Saque_Total']) &
+                    (base['MG_Beneficio_Compra_Disponivel'] == base['MG_Beneficio_Compra_Total']) &
+                    ((base['MG_Beneficio_Saque_Disponivel'] + base['MG_Beneficio_Compra_Disponivel']) >= margem_minima_cartao) &
+                    (mask)
+                )
+                
+                condicao_2 = (
+                    ((base['MG_Beneficio_Saque_Disponivel'] != base['MG_Beneficio_Saque_Total']) |
+                    (base['MG_Beneficio_Compra_Disponivel'] != base['MG_Beneficio_Compra_Total'])) &
+                    (base['MG_Beneficio_Saque_Disponivel'] >= margem_minima_cartao) &
+                    (mask)
+                )
+                
+                # Inicializando coeficiente e valor liberado
+                base['coeficiente'] = 0
+                base['coeficiente'] = base['coeficiente'].astype(float)
 
-                base.loc[condicao, 
-                         'MG_Beneficio_Saque_Disponivel'] = (base['MG_Beneficio_Saque_Disponivel'] + base['MG_Beneficio_Compra_Disponivel']).round(2)
+                base['valor_liberado_beneficio'] = 0
+                base['valor_liberado_beneficio'] = base['valor_liberado_beneficio'].astype(float)
+
+                base = base.loc[base['MG_Emprestimo_Disponivel'] < margem_emprestimo_limite]
+
+
+                # Aplicando as condições
+                base.loc[condicao_1, 'coeficiente'] = coeficiente1
+                base.loc[condicao_1, 'valor_liberado_beneficio'] = (
+                    (base['MG_Beneficio_Saque_Disponivel'] + base['MG_Beneficio_Compra_Disponivel']) * base['coeficiente']
+                ).round(2)
                 
-                base.loc[(base['MG_Beneficio_Saque_Disponivel'] >= margem_minima_cartao) & (mask),
-                         'valor_liberado_beneficio'] = (base['MG_Beneficio_Saque_Disponivel'] * base['coeficiente']).round(2)
-                base.loc[(base['MG_Beneficio_Saque_Disponivel'] >= margem_minima_cartao) & (mask),
-                         'valor_parcela_beneficio'] = (base['valor_liberado_beneficio'] / coeficiente_parcela).round(2)
-                
+                base.loc[condicao_2, 'coeficiente'] = coeficiente2
+                base.loc[condicao_2, 'valor_liberado_beneficio'] = (
+                    base['MG_Beneficio_Saque_Disponivel'] * base['coeficiente']
+                ).round(2)
+
+                base['valor_liberado_beneficio'] = base['valor_liberado_beneficio'].astype(float)
+
+
+                base.loc[(mask), 'valor_parcela_beneficio'] = (base['valor_liberado_beneficio'] / coeficiente_parcela).round(2)
                 base.drop(columns=['coeficiente'], inplace=True)
+
+                
 
             elif cartao_escolhido == 'Consignado':
                 base.loc[(base['MG_Cartao_Disponivel'] == base['MG_Cartao_Total']) &
-                         (base['MG_Cartao_Disponivel'] >= margem_minima_cartao),
-                         "valor_liberado_cartao"] = base['MG_Cartao_Disponivel'] * coeficiente1
+                         (base['MG_Cartao_Disponivel'] >= margem_minima_cartao) & 
+                         (mask),
+                         "valor_liberado_cartao"] = (base['MG_Cartao_Disponivel'] * coeficiente1).round(2)
+                
                 base.loc[(base['MG_Cartao_Disponivel'] >= margem_minima_cartao) & (mask),
                          'valor_parcela_cartao'] = (base['valor_liberado_cartao'] / coeficiente_parcela).round(2)
+                
+                base['valor_liberado_cartao'] = base['valor_liberado_cartao'].astype(float)
         
-
         elif convenio == 'govsp':
             if cartao_escolhido == 'Benefício':
                 base.loc[
@@ -105,8 +132,7 @@ def filtro_beneficio_e_cartao(base, nmp,convenio, quant_bancos, comissao_minima,
             elif cartao_escolhido == 'Consignado':
                 base.loc[
                     (base['MG_Cartao_Disponivel'] >= margem_minima_cartao) &
-                    (base['MG_Cartao_Total'] == base['MG_Cartao_Disponivel']) &
-                    (mask),
+                    (base['MG_Cartao_Total'] == base['MG_Cartao_Disponivel']),
                     'valor_liberado_cartao'
                 ] = (base.loc[mask, 'MG_Cartao_Disponivel'] * coeficiente1).round(2)
                 
@@ -122,11 +148,10 @@ def filtro_beneficio_e_cartao(base, nmp,convenio, quant_bancos, comissao_minima,
                          (base['MG_Beneficio_Saque_Total'] == base['MG_Beneficio_Saque_Disponivel']) &
                          (mask),
                          'valor_liberado_beneficio'] = (base.loc[mask, 'MG_Beneficio_Saque_Disponivel'] * coeficiente1).round(2)
-                base.loc[mask, 'valor_parcela_beneficio'] = (base.loc[mask, 'MG_Beneficio_Saque_Disponivel'] / coeficiente_parcela).round(2)
                 base.loc[mask, 'valor_parcela_beneficio'] = (base.loc[mask, 'valor_liberado_beneficio'] / coeficiente_parcela).round(2)
             elif cartao_escolhido == 'Consignado':
                 base.loc[(base['MG_Cartao_Disponivel'] >= margem_minima_cartao),
-                         (base['MG_Beneficio_Saque_Total'] == base['MG_Beneficio_Saque_Disponivel']) &
+                         (base['MG_Cartao_Total'] == base['MG_Cartao_Disponivel']) &
                          (mask),
                          'valor_liberado_cartao'] = (base.loc[mask, 'MG_Cartao_Disponivel'] * coeficiente1).round(2)
                 base.loc[(base['valor_liberado_cartao'] != 0) &
@@ -146,6 +171,7 @@ def filtro_beneficio_e_cartao(base, nmp,convenio, quant_bancos, comissao_minima,
             base.loc[mask, 'prazo_cartao'] = parcelas
             base['prazo_cartao'] = base['prazo_cartao'].astype(str).str.replace(".0", "")
             base.loc[mask, 'tratado_cartao'] = True
+
     
     base['comissao_total'] = (base['comissao_beneficio'] + base['comissao_cartao']).round(2)
     base = base.sort_values(by='comissao_total', ascending=False)
@@ -210,6 +236,7 @@ def filtro_beneficio_e_cartao(base, nmp,convenio, quant_bancos, comissao_minima,
     data_hoje = datetime.today().strftime('%d%m%Y')
     base['Campanha'] = convenio + "_" + data_hoje + "_" + "benef" + "_" + "outbound"
 
+    st.write(base.shape)
     return base
     
             

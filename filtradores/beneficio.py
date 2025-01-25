@@ -20,18 +20,20 @@ def filtro_beneficio(base, nmp, convenio, quant_bancos, comissao_minima, margem_
         base = base.loc[~base['Vinculo_Servidor'].isin(selecao_vinculos)]
 
     #================================================= ESPECIFICIDADES DE CONVENIOS =================================================#
+    # Usamos a margem beneficio compra (saque + compra) ao inves da margem beneficio saque (70% do total..)
     if convenio == 'govam':
         base = base.loc[base['MG_Beneficio_Compra_Disponivel'] == base['MG_Beneficio_Compra_Total']]
         base['MG_Beneficio_Saque_Disponivel'] = base['MG_Beneficio_Compra_Disponivel']
         
-
+    # Convenio govsp que precisa salvar as matriculas de quem ja usou a margem beneficio
     elif convenio == 'govsp':
         base = base[base['Lotacao'] != "ALESP"]
         base['margem_beneficio_usado'] = base['MG_Beneficio_Saque_Total'] - base['MG_Beneficio_Saque_Disponivel']
         base = base.loc[base['MG_Beneficio_Saque_Disponivel'] == base['MG_Beneficio_Saque_Total']]
         usou_beneficio = base.loc[base['margem_beneficio_usado'] > 0]
 
-    elif convenio != 'prefrj' or convenio == 'govpi':
+    # Convênios que não precisa ser virgem na margem beneficio
+    elif convenio != 'prefrj' and convenio != 'govpi' and convenio != 'goval':
         base = base.loc[base['MG_Beneficio_Saque_Disponivel'] == base['MG_Beneficio_Saque_Total']]
 
     
@@ -46,6 +48,7 @@ def filtro_beneficio(base, nmp, convenio, quant_bancos, comissao_minima, margem_
     for config in configuracoes:
         banco = config['Banco']
         coeficiente = config['Coeficiente']
+        coeficiente2 = config['Coeficiente2']
         comissao = (config['Comissão'] / 100)
         parcelas = config['Parcelas']
         coluna_condicional = config['Coluna Condicional']
@@ -68,24 +71,26 @@ def filtro_beneficio(base, nmp, convenio, quant_bancos, comissao_minima, margem_
             (base['MG_Beneficio_Saque_Disponivel'] == base['MG_Beneficio_Saque_Total']) &
             (base['MG_Beneficio_Compra_Disponivel'] == base['MG_Beneficio_Compra_Total'])
         )
-            coeficiente_alternativo = (coeficiente / 0.7).round(2)
-            base['coeficiente_alagoas'] = coeficiente_alternativo
-            base.loc[condicao, 'coeficiente_alagoas'] = coeficiente
+            
+            base['coeficiente'] = coeficiente2
+            base.loc[condicao, 'coeficiente'] = coeficiente
 
             base.loc[condicao, 'MG_Beneficio_Saque_Disponivel'] = (base['MG_Beneficio_Saque_Disponivel'] + base['MG_Beneficio_Compra_Disponivel']).round(2)
             
             base.loc[(base['MG_Beneficio_Saque_Disponivel'] > 20) & (mask), "valor_liberado_beneficio"
                     ] = (base['MG_Beneficio_Saque_Disponivel'] * base['coeficiente']).round(2)
             
-            base.drop(columns=['coeficiente_alagoas'], inplace=True)
+            base.loc[mask, 'valor_parcela_beneficio'] = (base.loc[mask, 'valor_liberado_beneficio'] / coeficiente_parcela).round(2)
+            
+            base.drop(columns=['coeficiente'], inplace=True)
 
         elif convenio == 'govsp':
             base.loc[mask, 'valor_liberado_beneficio'] = (base.loc[mask, 'MG_Beneficio_Saque_Disponivel'] * coeficiente).round(2)
             base.loc[(base['valor_liberado_beneficio'] != 0) & (base['Matricula'].isin(usou_beneficio['Matricula'])), 'valor_liberado_beneficio'] = 0
-            base.loc[mask, 'valor_parcela_beneficio'] = (base.loc[mask, 'MG_Beneficio_Saque_Disponivel'] / coeficiente_parcela).round(2)
+            base.loc[mask, 'valor_parcela_beneficio'] = (base.loc[mask, 'valor_liberado_beneficio'] / coeficiente_parcela).round(2)
         else:
             base.loc[mask, 'valor_liberado_beneficio'] = (base.loc[mask, 'MG_Beneficio_Saque_Disponivel'] * coeficiente).round(2)
-            base.loc[mask, 'valor_parcela_beneficio'] = (base.loc[mask, 'MG_Beneficio_Saque_Disponivel'] / coeficiente_parcela).round(2)
+            base.loc[mask, 'valor_parcela_beneficio'] = (base.loc[mask, 'valor_liberado_beneficio'] / coeficiente_parcela).round(2)
 
         base.loc[mask, 'comissao_beneficio'] = (base.loc[mask, 'valor_liberado_beneficio'] * comissao).round(2)
         base.loc[mask, 'banco_beneficio'] = banco
