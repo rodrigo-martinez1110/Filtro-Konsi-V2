@@ -7,7 +7,7 @@ def filtro_beneficio_e_cartao(base, convenio, quant_bancos, comissao_minima, mar
         st.error("Erro: A base está vazia!")
         return pd.DataFrame()
     
-    base = base.iloc[:, :23]
+    base = base.iloc[:, :26]
     
     base['valor_liberado_beneficio'] = 0
     base['valor_liberado_cartao'] = 0

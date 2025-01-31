@@ -18,7 +18,7 @@ def filtro_novo(base, convenio, quant_bancos, comissao_minima, margem_emprestimo
     #================================================================================================================================#
 
     # Garantir que apenas as primeiras 23 colunas sejam consideradas
-    base = base.iloc[:, :23]
+    base = base.iloc[:, :26]
 
 
     # Normalização de nomes e CPFs
@@ -128,5 +128,7 @@ def filtro_novo(base, convenio, quant_bancos, comissao_minima, margem_emprestimo
 
     # Renomear as colunas
     base.rename(columns=mapeamento, inplace=True)
+
+    st.write(base.shape)
 
     return base

@@ -7,7 +7,7 @@ def filtro_beneficio(base, convenio, quant_bancos, comissao_minima, margem_empre
         st.error("Erro: A base está vazia!")
         return pd.DataFrame()
     
-    base = base.iloc[:, :23]
+    base = base.iloc[:, :26]
 
     if 'Nome_Cliente' in base.columns and base['Nome_Cliente'].notna().any():
         base['Nome_Cliente'] = base['Nome_Cliente'].apply(lambda x: x.title() if isinstance(x, str) else x)
@@ -153,4 +153,6 @@ def filtro_beneficio(base, convenio, quant_bancos, comissao_minima, margem_empre
     data_hoje = datetime.today().strftime('%d%m%Y')
     base['Campanha'] = convenio + "_" + data_hoje + "_" + "benef" + "_" + "outbound"
 
+
+    st.write(base.shape)
     return base
