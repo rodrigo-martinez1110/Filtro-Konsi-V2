@@ -21,9 +21,9 @@ def filtro_beneficio(base, convenio, quant_bancos, comissao_minima, margem_empre
 
     #================================================= ESPECIFICIDADES DE CONVENIOS =================================================#
     # Usamos a margem beneficio compra (saque + compra) ao inves da margem beneficio saque (70% do total..)
-    if convenio == 'govam':
-        base = base.loc[base['MG_Beneficio_Compra_Disponivel'] == base['MG_Beneficio_Compra_Total']]
-        base['MG_Beneficio_Saque_Disponivel'] = base['MG_Beneficio_Compra_Disponivel']
+    #if convenio == 'govam':
+    #   base = base.loc[base['MG_Beneficio_Compra_Disponivel'] == base['MG_Beneficio_Compra_Total']]
+    #   base['MG_Beneficio_Saque_Disponivel'] = base['MG_Beneficio_Compra_Disponivel']
         
     # Convenio govsp que precisa salvar as matriculas de quem ja usou a margem beneficio
     elif convenio == 'govsp':
