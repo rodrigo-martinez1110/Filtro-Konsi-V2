@@ -26,7 +26,7 @@ def filtro_beneficio(base, convenio, quant_bancos, comissao_minima, margem_empre
     #   base['MG_Beneficio_Saque_Disponivel'] = base['MG_Beneficio_Compra_Disponivel']
         
     # Convenio govsp que precisa salvar as matriculas de quem ja usou a margem beneficio
-    elif convenio == 'govsp':
+    if convenio == 'govsp':
         base['margem_beneficio_usado'] = base['MG_Beneficio_Saque_Total'] - base['MG_Beneficio_Saque_Disponivel']
         base = base.loc[base['MG_Beneficio_Saque_Disponivel'] == base['MG_Beneficio_Saque_Total']]
         usou_beneficio = base.loc[base['margem_beneficio_usado'] > 0]
