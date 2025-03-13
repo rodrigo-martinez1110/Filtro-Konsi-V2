@@ -27,10 +27,10 @@ def filtro_beneficio(base, convenio, quant_bancos, comissao_minima, margem_empre
         
     # Convenio govsp que precisa salvar as matriculas de quem ja usou a margem beneficio
     elif convenio == 'govsp':
-        base = base[base['Lotacao'] != "ALESP"]
         base['margem_beneficio_usado'] = base['MG_Beneficio_Saque_Total'] - base['MG_Beneficio_Saque_Disponivel']
         base = base.loc[base['MG_Beneficio_Saque_Disponivel'] == base['MG_Beneficio_Saque_Total']]
         usou_beneficio = base.loc[base['margem_beneficio_usado'] > 0]
+        base = base[base['Lotacao'] != "ALESP"]
 
     # Convênios que não precisa ser virgem na margem beneficio
     elif convenio != 'prefrj' and convenio != 'govpi' and convenio != 'goval' and convenio != "govce":
