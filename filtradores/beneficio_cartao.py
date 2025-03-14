@@ -38,6 +38,7 @@ def filtro_beneficio_e_cartao(base, convenio, quant_bancos, comissao_minima, mar
         valor_condicional = config['Valor Condicional']
         coeficiente_parcela = config['Coeficiente_Parcela']
         margem_minima_cartao = config['Margem_Minima_Cartao']
+        st.write(margem_minima_cartao)
 
         if coluna_condicional != "Aplicar a toda a base":
             if isinstance(valor_condicional, str):
