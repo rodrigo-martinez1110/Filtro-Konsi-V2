@@ -153,9 +153,7 @@ def filtro_beneficio_e_cartao(base, convenio, quant_bancos, comissao_minima, mar
                          (base['MG_Cartao_Total'] == base['MG_Cartao_Disponivel']) &
                          (mask),
                          'valor_liberado_cartao'] = (base.loc[mask, 'MG_Cartao_Disponivel'] * coeficiente1).round(2)
-                base.loc[(base['valor_liberado_cartao'] != 0) &
-                            (base['Matricula'].isin(usou_cartao['Matricula'])),
-                            'valor_liberado_cartao'] = 0
+
                 base.loc[mask, 'valor_parcela_cartao'] = (base.loc[mask, 'valor_liberado_cartao'] / coeficiente_parcela).round(2)
         
         if cartao_escolhido == 'Benefício':
