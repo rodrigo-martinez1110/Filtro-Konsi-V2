@@ -225,7 +225,7 @@ def filtro_beneficio_e_cartao(base, convenio, quant_bancos, comissao_minima, mar
     base = base.drop(columns=['tratado'], errors='ignore')
 
     data_hoje = datetime.today().strftime('%d%m%Y')
-    base['Campanha'] = convenio + "_" + data_hoje + "_" + "benef" + "_" + "outbound"
+    base['Campanha'] = convenio + "_" + data_hoje + "_" + "benef&cartao" + "_" + "outbound"
 
     st.write(base.shape)
     return base
