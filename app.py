@@ -7,7 +7,9 @@ from filtradores.beneficio import filtro_beneficio
 from filtradores.cartao import filtro_cartao
 from filtradores.beneficio_cartao import filtro_beneficio_e_cartao
 
-
+st.set_page_config(layout="wide",
+                   initial_sidebar_state='expanded',
+                   page_title='Filtrador de Campanhas V2')
 
 # Listas e configurações iniciais
 lista_codigos_bancos = ['2', '33', '74', '243', '422', '465', '623', '643', '707', '955', '6613']
