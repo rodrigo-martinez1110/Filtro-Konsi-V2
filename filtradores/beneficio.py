@@ -78,6 +78,7 @@ def filtro_beneficio(base, convenio, quant_bancos, somar_margem_compra, comissao
             # Se for uma lista o codigo vai me criar uma regex para buscar qualquer uma das palavras
             if isinstance(valor_condicional, list):
                 regex_pattern = "|".join(map(re.escape, valor_condicional))
+                #teste
                 mask = (base[coluna_condicional].str.contains(regex_pattern, na=False, case=False)) & (~base['tratado'])
             else:
                 # Se for apenas uma string vai buscar exatamente a unica palavra
