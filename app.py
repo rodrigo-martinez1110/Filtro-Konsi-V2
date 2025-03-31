@@ -65,6 +65,8 @@ if arquivos:
                 options=vinculo
             )
 
+        somar_margem_compra = st.sidebar.checkbox("Somar Saque e Compra?")
+
         # Só mostrar a configuração de bancos após selecionar o número
         if quant_bancos > 0:
             configuracoes = []
@@ -221,9 +223,9 @@ if arquivos:
                                                     comissao_minima, margem_emprestimo_limite, selecao_lotacao,
                                                     selecao_vinculos, configuracoes)
                 elif campanha == 'Benefício':
-                    base_filtrada = filtro_beneficio(base, convenio, quant_bancos,
-                                                        comissao_minima, margem_emprestimo_limite, selecao_lotacao,
-                                                        selecao_vinculos, configuracoes)
+                    base_filtrada = filtro_beneficio(base, convenio, quant_bancos, somar_margem_compra, comissao_minima, margem_emprestimo_limite, 
+                                                     selecao_lotacao, selecao_vinculos, configuracoes)
+                    st.write(somar_margem_compra)
                 elif campanha == 'Cartão':
                     base_filtrada = filtro_cartao(base, convenio, quant_bancos,
                                                   comissao_minima, margem_emprestimo_limite,

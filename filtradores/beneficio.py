@@ -1,8 +1,9 @@
 import pandas as pd
 import streamlit as st
 from datetime import datetime
+import re
 
-def filtro_beneficio(base, convenio, quant_bancos, comissao_minima, margem_emprestimo_limite, selecao_lotacao, selecao_vinculos, configuracoes):
+def filtro_beneficio(base, convenio, quant_bancos, somar_margem_compra, comissao_minima, margem_emprestimo_limite, selecao_lotacao, selecao_vinculos, configuracoes):
     if base.empty:
         st.error("Erro: A base está vazia!")
         return pd.DataFrame()
@@ -31,10 +32,25 @@ def filtro_beneficio(base, convenio, quant_bancos, comissao_minima, margem_empre
         base = base.loc[base['MG_Beneficio_Saque_Disponivel'] == base['MG_Beneficio_Saque_Total']]
         usou_beneficio = base.loc[base['margem_beneficio_usado'] > 0]
         base = base[base['Lotacao'] != "ALESP"]
+    
+    # Convênio GOVAM que tem que somar margem saque com margem compra pra calcular o valor liberado no banco master (Se forem margens virgens)
+    elif somar_margem_compra == True and convenio == 'govam':
+        mascara_temporaria = (
+            (base['MG_Beneficio_Saque_Total'] == base['MG_Beneficio_Saque_Disponivel']) &
+            (base['MG_Beneficio_Compra_Total'] == base['MG_Beneficio_Compra_Disponivel']) 
+        )
+
+        base.loc[mascara_temporaria, 'MG_Beneficio_Saque_Total'] += base['MG_Beneficio_Compra_Total']
+        base.loc[mascara_temporaria, 'MG_Beneficio_Saque_Disponivel'] += base['MG_Beneficio_Compra_Disponivel']
+        
+        base = base.loc[base['MG_Beneficio_Saque_Disponivel'] == base['MG_Beneficio_Saque_Total']]
+
 
     # Convênios que não precisa ser virgem na margem beneficio
     elif convenio != 'prefrj' and convenio != 'govpi' and convenio != 'goval' and convenio != "govce":
         base = base.loc[base['MG_Beneficio_Saque_Disponivel'] == base['MG_Beneficio_Saque_Total']]
+    
+    
 
     base = base.sort_values(by='MG_Beneficio_Saque_Disponivel', ascending = False)
     
@@ -55,12 +71,17 @@ def filtro_beneficio(base, convenio, quant_bancos, comissao_minima, margem_empre
         coeficiente_parcela = config['Coeficiente_Parcela']
 
         if coluna_condicional != "Aplicar a toda a base":
-            if isinstance(valor_condicional, str):
-                # Máscara para linhas que contêm a palavra-chave na coluna condicional
-                mask = (base[coluna_condicional].str.contains(valor_condicional, na=False, case=False)) & (~base['tratado'])
+            if isinstance(valor_condicional, str) and ";" in valor_condicional:
+                # Se for uma string separada por ";", transforma em lista removendo espaços extras
+                valor_condicional = [item.strip() for item in valor_condicional.split(";")]
+
+            # Se for uma lista o codigo vai me criar uma regex para buscar qualquer uma das palavras
+            if isinstance(valor_condicional, list):
+                regex_pattern = "|".join(map(re.escape, valor_condicional))
+                mask = (base[coluna_condicional].str.contains(regex_pattern, na=False, case=False)) & (~base['tratado'])
             else:
-                # Máscara para as linhas que atendem à condição específica
-                mask = (base[coluna_condicional].isin(valor_condicional)) & (~base['tratado'])
+                # Se for apenas uma string vai buscar exatamente a unica palavra
+                mask = (base[coluna_condicional].str.contains(re.escape(valor_condicional), na=False, case=False)) & (~base['tratado'])
         else:
             # Máscara para todas as linhas não tratadas
             mask = ~base['tratado']
