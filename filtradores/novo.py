@@ -58,6 +58,7 @@ def filtro_novo(base, convenio, quant_bancos, comissao_minima, margem_emprestimo
 
         if margem_seguranca:
             base.loc[mask, 'valor_liberado_emprestimo'] = (base.loc[mask, 'MG_Emprestimo_Disponivel'] * 0.95 * coeficiente).round(2)
+            base.loc[mask, 'valor_parcela_emprestimo'] = (base.loc[mask, 'MG_Emprestimo_Disponivel'] * 0.95 * coeficiente).round(2)
         else:
             base.loc[mask, 'valor_liberado_emprestimo'] = (base.loc[mask, 'MG_Emprestimo_Disponivel'] * coeficiente).round(2)
         base.loc[mask, 'comissao_emprestimo'] = (base.loc[mask, 'valor_liberado_emprestimo'] * comissao).round(2)
