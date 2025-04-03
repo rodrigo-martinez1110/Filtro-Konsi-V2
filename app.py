@@ -1,14 +1,16 @@
 import streamlit as st
 import pandas as pd
-import openpyxl
 from juntar_bases import juntar_bases
+import unicodedata
 
 from filtradores.novo import filtro_novo
 from filtradores.beneficio import filtro_beneficio
 from filtradores.cartao import filtro_cartao
 from filtradores.beneficio_cartao import filtro_beneficio_e_cartao
 
-
+st.set_page_config(layout="wide",
+                   initial_sidebar_state='expanded',
+                   page_title='Filtrador de Campanhas V2')
 
 # Listas e configurações iniciais
 lista_codigos_bancos = ['2', '33', '74', '243', '422', '465', '623', '643', '707', '955', '6613']
@@ -18,12 +20,10 @@ st.title("Filtro de Campanhas - Konsi")
 
 # Upload de arquivos
 arquivos = st.file_uploader('Arraste os arquivos CSV de higienização', accept_multiple_files=True, type=['csv'])
-nmp = st.file_uploader('Arraste o arquivo XLSX de NMP', accept_multiple_files=False, type=['xlsx'])
 
 if arquivos:
     # Junta as bases carregadas
     base = juntar_bases(arquivos)
-
     if not base.empty:
         st.write("Prévia dos dados carregados:")
         st.write(base.head(50))
@@ -36,20 +36,11 @@ if arquivos:
             quantidade_de_bancos = 2
         else:
             quantidade_de_bancos = 1
-
-        # Configurações adicionais
+        # Seleção da quantidade de bancos
         quant_bancos = st.sidebar.number_input("Quantidade de Bancos:", min_value=1, max_value=10, step=1, value=quantidade_de_bancos)
-        comissao_minima = st.sidebar.number_input(f"Comissão mínima da campanha {campanha}:")
-        margem_emprestimo_limite = st.sidebar.number_input(f"Margem de empréstimo mínima da campanha {campanha}:")
-        if base['Data_Nascimento'].notna().sum() > 0:
-            base['Data_Nascimento'] = pd.to_datetime(base['Data_Nascimento'], format = '%d/%m/%Y', errors='coerce')
-            ano_nascimento_maximo = st.sidebar.slider(f"Ano de nascimento máximo da campanha:",
-                                                    min_value=int(base['Data_Nascimento'].dt.year.min()),
-                                                    max_value=int(base['Data_Nascimento'].dt.year.max()),
-                                                    value=int(base['Data_Nascimento'].dt.year.min()))
-        else:
-            st.sidebar.write('Coluna Data_Nascimento sem valores')
 
+        comissao_minima = st.sidebar.number_input(f"Comissão mínima da campanha {campanha}:")
+        margem_emprestimo_limite = st.sidebar.number_input(f"Margem de empréstimo limite da campanha {campanha}:")
 
         st.write("------")
 
@@ -74,6 +65,13 @@ if arquivos:
                 f"Selecione os vínculos que deseja excluir do convênio {convenio}",
                 options=vinculo
             )
+
+        checkbox_acentos = st.sidebar.checkbox("Remover acentos")
+        if checkbox_acentos:
+            remover_acentos = True
+
+
+        somar_margem_compra = st.sidebar.checkbox("Somar Saque e Compra?")
 
         # Só mostrar a configuração de bancos após selecionar o número
         if quant_bancos > 0:
@@ -225,16 +223,15 @@ if arquivos:
                         })
             
             st.write(campanha)
-            if st.button("Aplicar configurações"):
-
+            if st.button("Aplicar configurações"): 
                 if campanha == 'Novo':
-                    base_filtrada = filtro_novo(base, nmp, convenio, quant_bancos,
-                                                    comissao_minima, margem_emprestimo_limite, ano_nascimento_maximo, selecao_lotacao,
+                    base_filtrada = filtro_novo(base, convenio, quant_bancos,
+                                                    comissao_minima, margem_emprestimo_limite, selecao_lotacao,
                                                     selecao_vinculos, configuracoes)
                 elif campanha == 'Benefício':
-                    base_filtrada = filtro_beneficio(base, nmp, convenio, quant_bancos,
-                                                        comissao_minima, margem_emprestimo_limite, ano_nascimento_maximo, selecao_lotacao,
-                                                        selecao_vinculos, configuracoes)
+                    base_filtrada = filtro_beneficio(base, convenio, quant_bancos, somar_margem_compra, comissao_minima, margem_emprestimo_limite, 
+                                                     selecao_lotacao, selecao_vinculos, configuracoes)
+                    st.write(somar_margem_compra)
                 elif campanha == 'Cartão':
                     base_filtrada = filtro_cartao(base, convenio, quant_bancos,
                                                   comissao_minima, margem_emprestimo_limite,
@@ -242,14 +239,23 @@ if arquivos:
                                                   configuracoes)
                 
                 elif campanha == 'Benefício & Cartão':
-                    base_filtrada = filtro_beneficio_e_cartao(base, nmp, convenio, quant_bancos,
-                                                              comissao_minima, margem_emprestimo_limite, ano_nascimento_maximo,                                                               selecao_lotacao, selecao_vinculos,
+                    base_filtrada = filtro_beneficio_e_cartao(base, convenio, quant_bancos,
+                                                              comissao_minima, margem_emprestimo_limite,
+                                                              selecao_lotacao, selecao_vinculos,
                                                               configuracoes)
 
                     
 
                 
+                def remover_acentos(x):
+                    if pd.isna(x):
+                        return x
+                    return unicodedata.normalize('NFKD', str(x)).encode('ascii', 'ignore').decode('utf-8')
+                
                 def convert_df(df):
+                    if remover_acentos:
+                        df['Nome_Cliente'] = df['Nome_Cliente'].apply(remover_acentos)
+                        return df.to_csv(index=False, sep = ';').encode('utf-8')
                     return df.to_csv(index=False, sep = ';').encode('utf-8')
 
                 csv = convert_df(base_filtrada)

@@ -2,7 +2,7 @@ import pandas as pd
 import streamlit as st
 from datetime import datetime
 
-def filtro_novo(base, nmp, convenio, quant_bancos, comissao_minima, margem_emprestimo_limite, ano_nascimento_maximo, selecao_lotacao, selecao_vinculos, configuracoes):
+def filtro_novo(base, convenio, quant_bancos, comissao_minima, margem_emprestimo_limite, selecao_lotacao, selecao_vinculos, configuracoes):
     if base.empty:
         st.error("Erro: A base está vazia!")
         return pd.DataFrame()
@@ -18,7 +18,7 @@ def filtro_novo(base, nmp, convenio, quant_bancos, comissao_minima, margem_empre
     #================================================================================================================================#
 
     # Garantir que apenas as primeiras 23 colunas sejam consideradas
-    base = base.iloc[:, :23]
+    base = base.iloc[:, :26]
 
 
     # Normalização de nomes e CPFs
@@ -58,6 +58,7 @@ def filtro_novo(base, nmp, convenio, quant_bancos, comissao_minima, margem_empre
 
         if margem_seguranca:
             base.loc[mask, 'valor_liberado_emprestimo'] = (base.loc[mask, 'MG_Emprestimo_Disponivel'] * 0.95 * coeficiente).round(2)
+            base.loc[mask, 'valor_parcela_emprestimo'] = (base.loc[mask, 'MG_Emprestimo_Disponivel'] * 0.95 * coeficiente).round(2)
         else:
             base.loc[mask, 'valor_liberado_emprestimo'] = (base.loc[mask, 'MG_Emprestimo_Disponivel'] * coeficiente).round(2)
         base.loc[mask, 'comissao_emprestimo'] = (base.loc[mask, 'valor_liberado_emprestimo'] * comissao).round(2)
@@ -73,19 +74,15 @@ def filtro_novo(base, nmp, convenio, quant_bancos, comissao_minima, margem_empre
 
         
 
-    # Filtrar com base nas configurações
+    # Filtrar comissões e margens
     base = base.loc[base['MG_Emprestimo_Disponivel'] >= margem_emprestimo_limite]
-    base = base[base['Data_Nascimento'].dt.year >= ano_nascimento_maximo]
     base = base.loc[base['comissao_emprestimo'] >= comissao_minima]
-    if nmp:
-        lista_nmp = pd.read_excel(nmp)
-        base = base[~base['Nome_Cliente'].isin(lista_nmp['Cliente'])] 
 
     # Ordenar e remover duplicados
     base = base.sort_values(by='valor_liberado_emprestimo', ascending=False)
     base = base.drop_duplicates(subset='CPF')
 
-    # Adicionar colunas extras
+    # Adicionar colunas adicionais
     colunas_adicionais = [
         'FONE1', 'FONE2', 'FONE3', 'FONE4',
         'valor_liberado_beneficio', 'valor_liberado_cartao',
@@ -132,5 +129,7 @@ def filtro_novo(base, nmp, convenio, quant_bancos, comissao_minima, margem_empre
 
     # Renomear as colunas
     base.rename(columns=mapeamento, inplace=True)
+
+    st.write(base.shape)
 
     return base

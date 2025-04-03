@@ -6,7 +6,7 @@ def juntar_bases(files):
     dataframes = []
     for arquivo in files:
         try:
-            df = pd.read_csv(arquivo, low_memory=False)
+            df = pd.read_csv(arquivo, sep=';', encoding='latin1', low_memory=False)
             if df.empty:
                 st.warning(f"O arquivo {arquivo.name} está vazio.")
             else:
