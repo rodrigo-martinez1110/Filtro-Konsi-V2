@@ -40,8 +40,8 @@ def filtro_beneficio(base, convenio, quant_bancos, somar_margem_compra, comissao
             (base['MG_Beneficio_Compra_Total'] == base['MG_Beneficio_Compra_Disponivel']) 
         )
 
-        base.loc[mascara_temporaria, 'MG_Beneficio_Saque_Total'] += base['MG_Beneficio_Compra_Total']
-        base.loc[mascara_temporaria, 'MG_Beneficio_Saque_Disponivel'] += base['MG_Beneficio_Compra_Disponivel']
+        base.loc[mascara_temporaria, 'MG_Beneficio_Saque_Total'] = base['MG_Beneficio_Compra_Total'] + base['MG_Beneficio_Saque_Total']
+        base.loc[mascara_temporaria, 'MG_Beneficio_Saque_Disponivel'] += base['MG_Beneficio_Compra_Disponivel'] + base['MG_Beneficio_Saque_Disponivel']
         
         base = base.loc[base['MG_Beneficio_Saque_Disponivel'] == base['MG_Beneficio_Saque_Total']]
 
