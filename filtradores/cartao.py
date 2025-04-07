@@ -20,11 +20,11 @@ def filtro_cartao(base, convenio, quant_bancos, comissao_minima, margem_empresti
         base = base.loc[~base['Vinculo_Servidor'].isin(selecao_vinculos)]
 
     # Especificidades de convênios
-    base = base.loc[base['MG_Cartao_Total'] == base['MG_Cartao_Disponivel']]
     if convenio == 'govsp':
         base = base[base['Lotacao'] != "ALESP"]
         base['margem_cartao_usado'] = base['MG_Cartao_Total'] - base['MG_Cartao_Disponivel']
         usou_cartao = base.loc[base['margem_cartao_usado'] > 0]
+        base = base.loc[base['MG_Cartao_Disponivel'] == base['MG_Cartao_Total']]
 
     # Criar uma máscara para rastrear linhas já tratadas
     base['tratado'] = False
