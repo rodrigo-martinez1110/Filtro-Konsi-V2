@@ -29,8 +29,8 @@ def filtro_beneficio(base, convenio, quant_bancos, somar_margem_compra, comissao
     # Convenio govsp que precisa salvar as matriculas de quem ja usou a margem beneficio
     if convenio == 'govsp':
         base['margem_beneficio_usado'] = base['MG_Beneficio_Saque_Total'] - base['MG_Beneficio_Saque_Disponivel']
-        base = base.loc[base['MG_Beneficio_Saque_Disponivel'] == base['MG_Beneficio_Saque_Total']]
         usou_beneficio = base.loc[base['margem_beneficio_usado'] > 0]
+        base = base.loc[base['MG_Beneficio_Saque_Disponivel'] == base['MG_Beneficio_Saque_Total']]
         base = base[base['Lotacao'] != "ALESP"]
     
     # Convênio GOVAM que tem que somar margem saque com margem compra pra calcular o valor liberado no banco master (Se forem margens virgens)
