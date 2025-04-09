@@ -95,6 +95,10 @@ def filtro_beneficio(base, convenio, quant_bancos, comissao_minima, margem_empre
                     (base['MG_Beneficio_Saque_Total'] == base['MG_Beneficio_Saque_Disponivel'])
                 )
 
+                # A margem saque subirá no hubspot com a margem compra (saque + compra)
+                base.loc[mask, 'MG_Beneficio_Saque_Total'] = base.loc[mask, 'MG_Beneficio_Compra_Total']
+                base.loc[mask, 'MG_Beneficio_Saque_Disponivel'] = base.loc[mask, 'MG_Beneficio_Compra_Disponivel']
+                
                 base.loc[mask, 'valor_liberado_beneficio'] = (
                     base.loc[mask, 'MG_Beneficio_Compra_Disponivel'] * coeficiente
                 ).round(2)
@@ -110,7 +114,7 @@ def filtro_beneficio(base, convenio, quant_bancos, comissao_minima, margem_empre
                 )
                 
                 base.loc[mask, 'valor_liberado_beneficio'] = (
-                    base.loc[mask, 'MG_Beneficio_Compra_Disponivel'] * coeficiente
+                    base.loc[mask, 'MG_Beneficio_Saque_Disponivel'] * coeficiente
                 ).round(2)
 
                 base.loc[mask, 'valor_parcela_beneficio'] = (
