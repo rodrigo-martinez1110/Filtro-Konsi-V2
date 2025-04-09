@@ -18,7 +18,7 @@ colunas_condicao = ['Vinculo_Servidor', 'Lotacao', 'Secretaria', 'Aplicar a toda
 st.title("Filtro de Campanhas - Konsi")
 
 # Upload de arquivos
-arquivos = st.file_uploader('Arraste os arquivos CSV de higienização', accept_multiple_files=True, type=['csv'])
+arquivos = st.sidebar.file_uploader('Arraste os arquivos CSV de higienização', accept_multiple_files=True, type=['csv'])
 
 if arquivos:
     # Junta as bases carregadas
