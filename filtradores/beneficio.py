@@ -137,7 +137,6 @@ def filtro_beneficio(base, convenio, quant_bancos, comissao_minima, margem_empre
 
         # Marcar essas linhas como tratadas
         base.loc[mask, 'tratado'] = True
-        st.write(base)
 
     base = base.loc[base['MG_Emprestimo_Disponivel'] < margem_emprestimo_limite]
     base = base.loc[base['comissao_beneficio'] >= comissao_minima]
