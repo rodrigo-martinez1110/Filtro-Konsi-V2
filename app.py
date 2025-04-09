@@ -65,7 +65,6 @@ if arquivos:
                 options=vinculo
             )
 
-        somar_margem_compra = st.sidebar.checkbox("Somar Saque e Compra?")
 
         # Só mostrar a configuração de bancos após selecionar o número
         if quant_bancos > 0:
@@ -118,6 +117,7 @@ if arquivos:
                                                            value=30.0)
 
                     else:
+                        somar_margem_compra = st.checkbox("Usar margem compra (GOV AM)", key=f'checkbox_compra{i}') 
                         banco = st.selectbox(f"Selecione o Banco {i + 1}:",
                                 options=lista_codigos_bancos, 
                                 key=f"banco_{i}_{campanha}")
@@ -128,6 +128,7 @@ if arquivos:
                         coeficiente2 = None
                         if convenio == 'goval' and (campanha == 'Benefício' or campanha == 'Benefício & Cartão'):
                             coeficiente2 = st.number_input(f"Coeficiente 2 Banco {i + 1}:", min_value=0.0, max_value=100.0, step=0.01, key=f"coeficiente2_{i}")
+                        
                         comissao = st.number_input(f"Comissão Banco {i + 1} (%):", min_value=0.0, max_value=100.0, step=0.01, key=f"comissao_{i}")
                         parcelas = st.number_input(f"Parcelas Banco {i + 1}:", min_value=1, max_value=200, step=1, key=f"parcelas_{i}")
 
@@ -187,8 +188,7 @@ if arquivos:
                             "Comissão": comissao,
                             "Parcelas": parcelas,
                             "Coluna Condicional": coluna_condicao,
-                            "Valor Condicional": valor_condicao,
-
+                            "Valor Condicional": valor_condicao
                         })
                     elif campanha == 'Benefício' or campanha == 'Cartão':
                         configuracoes.append({
@@ -200,6 +200,7 @@ if arquivos:
                             "Coluna Condicional": coluna_condicao,
                             "Valor Condicional": valor_condicao,
                             "Coeficiente_Parcela": coeficiente_parcela,
+                            "Usar_Margem_Compra": somar_margem_compra
                         })
                     
                     elif campanha == 'Benefício & Cartão':
@@ -223,9 +224,9 @@ if arquivos:
                                                     comissao_minima, margem_emprestimo_limite, selecao_lotacao,
                                                     selecao_vinculos, configuracoes)
                 elif campanha == 'Benefício':
-                    base_filtrada = filtro_beneficio(base, convenio, quant_bancos, somar_margem_compra, comissao_minima, margem_emprestimo_limite, 
+                    base_filtrada = filtro_beneficio(base, convenio, quant_bancos, comissao_minima, margem_emprestimo_limite, 
                                                      selecao_lotacao, selecao_vinculos, configuracoes)
-                    st.write(somar_margem_compra)
+                    
                 elif campanha == 'Cartão':
                     base_filtrada = filtro_cartao(base, convenio, quant_bancos,
                                                   comissao_minima, margem_emprestimo_limite,

@@ -3,7 +3,7 @@ import streamlit as st
 from datetime import datetime
 import re
 
-def filtro_beneficio(base, convenio, quant_bancos, somar_margem_compra, comissao_minima, margem_emprestimo_limite, selecao_lotacao, selecao_vinculos, configuracoes):
+def filtro_beneficio(base, convenio, quant_bancos, comissao_minima, margem_emprestimo_limite, selecao_lotacao, selecao_vinculos, configuracoes):
     if base.empty:
         st.error("Erro: A base está vazia!")
         return pd.DataFrame()
@@ -20,38 +20,19 @@ def filtro_beneficio(base, convenio, quant_bancos, somar_margem_compra, comissao
     if selecao_vinculos:
         base = base.loc[~base['Vinculo_Servidor'].isin(selecao_vinculos)]
 
-    #================================================= ESPECIFICIDADES DE CONVENIOS =================================================#
-    # Usamos a margem beneficio compra (saque + compra) ao inves da margem beneficio saque (70% do total..)
-    #if convenio == 'govam':
-    #   base = base.loc[base['MG_Beneficio_Compra_Disponivel'] == base['MG_Beneficio_Compra_Total']]
-    #   base['MG_Beneficio_Saque_Disponivel'] = base['MG_Beneficio_Compra_Disponivel']
-        
-    # Convenio govsp que precisa salvar as matriculas de quem ja usou a margem beneficio
+
     if convenio == 'govsp':
         base['margem_beneficio_usado'] = base['MG_Beneficio_Saque_Total'] - base['MG_Beneficio_Saque_Disponivel']
         usou_beneficio = base.loc[base['margem_beneficio_usado'] > 0]
         base = base.loc[base['MG_Beneficio_Saque_Disponivel'] == base['MG_Beneficio_Saque_Total']]
         base = base[base['Lotacao'] != "ALESP"]
     
-    # Convênio GOVAM que tem que somar margem saque com margem compra pra calcular o valor liberado no banco master (Se forem margens virgens)
-    elif somar_margem_compra == True and convenio == 'govam':
-        mascara_temporaria = (
-            (base['MG_Beneficio_Saque_Total'] == base['MG_Beneficio_Saque_Disponivel']) &
-            (base['MG_Beneficio_Compra_Total'] == base['MG_Beneficio_Compra_Disponivel']) 
-        )
-
-        base.loc[mascara_temporaria, 'MG_Beneficio_Saque_Total'] = (base['MG_Beneficio_Compra_Total'] + base['MG_Beneficio_Saque_Total']).round(2)
-        base.loc[mascara_temporaria, 'MG_Beneficio_Saque_Disponivel'] = (base['MG_Beneficio_Compra_Disponivel'] + base['MG_Beneficio_Saque_Disponivel']).round(2)
-        
-        base = base.loc[base['MG_Beneficio_Saque_Disponivel'] == base['MG_Beneficio_Saque_Total']]
-
 
     # Convênios que não precisa ser virgem na margem beneficio
-    elif convenio != 'prefrj' and convenio != 'govpi' and convenio != 'goval' and convenio != "govce":
+    elif convenio != 'prefrj' and convenio != 'govpi' and convenio != 'goval' and convenio != "govce" and convenio == 'govam':
         base = base.loc[base['MG_Beneficio_Saque_Disponivel'] == base['MG_Beneficio_Saque_Total']]
     
     
-
     base = base.sort_values(by='MG_Beneficio_Saque_Disponivel', ascending = False)
     
     #================================================================================================================================#
@@ -69,6 +50,7 @@ def filtro_beneficio(base, convenio, quant_bancos, somar_margem_compra, comissao
         coluna_condicional = config['Coluna Condicional']
         valor_condicional = config['Valor Condicional']
         coeficiente_parcela = config['Coeficiente_Parcela']
+        usar_margem_compra = config['Usar_Margem_Compra']
 
         if coluna_condicional != "Aplicar a toda a base":
             if isinstance(valor_condicional, str) and ";" in valor_condicional:
@@ -105,6 +87,37 @@ def filtro_beneficio(base, convenio, quant_bancos, somar_margem_compra, comissao
             
             base.drop(columns=['coeficiente'], inplace=True)
 
+        elif convenio == 'govam':
+            if usar_margem_compra:
+                mask = (
+                    mask &
+                    (base['MG_Beneficio_Compra_Total'] == base['MG_Beneficio_Compra_Disponivel']) &
+                    (base['MG_Beneficio_Saque_Total'] == base['MG_Beneficio_Saque_Disponivel'])
+                )
+
+                base.loc[mask, 'valor_liberado_beneficio'] = (
+                    base.loc[mask, 'MG_Beneficio_Compra_Disponivel'] * coeficiente
+                ).round(2)
+
+                base.loc[mask, 'valor_parcela_beneficio'] = (
+                    base.loc[mask, 'valor_liberado_beneficio'] / coeficiente_parcela
+                ).round(2)
+            else:
+                mask = (
+                    mask &
+                    (base['MG_Beneficio_Compra_Total'] != base['MG_Beneficio_Compra_Disponivel']) &
+                    (base['MG_Beneficio_Saque_Total'] == base['MG_Beneficio_Saque_Disponivel'])
+                )
+                
+                base.loc[mask, 'valor_liberado_beneficio'] = (
+                    base.loc[mask, 'MG_Beneficio_Compra_Disponivel'] * coeficiente
+                ).round(2)
+
+                base.loc[mask, 'valor_parcela_beneficio'] = (
+                    base.loc[mask, 'valor_liberado_beneficio'] / coeficiente_parcela
+                ).round(2)
+            
+
         elif convenio == 'govsp':
             base.loc[mask, 'valor_liberado_beneficio'] = (base.loc[mask, 'MG_Beneficio_Saque_Disponivel'] * coeficiente).round(2)
             base.loc[(base['valor_liberado_beneficio'] != 0) & (base['Matricula'].isin(usou_beneficio['Matricula'])), 'valor_liberado_beneficio'] = 0
@@ -117,10 +130,10 @@ def filtro_beneficio(base, convenio, quant_bancos, somar_margem_compra, comissao
         base.loc[mask, 'banco_beneficio'] = banco
         base.loc[mask, 'prazo_beneficio'] = parcelas
         base['prazo_beneficio'] = base['prazo_beneficio'].astype(str).str.replace(".0", "")
-        
 
         # Marcar essas linhas como tratadas
         base.loc[mask, 'tratado'] = True
+        st.write(base)
 
     base = base.loc[base['MG_Emprestimo_Disponivel'] < margem_emprestimo_limite]
     base = base.loc[base['comissao_beneficio'] >= comissao_minima]
