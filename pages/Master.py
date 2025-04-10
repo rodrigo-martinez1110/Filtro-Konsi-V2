@@ -135,8 +135,13 @@ if uploaded_files:
     if arquivo_novo:
         valor_limite = st.sidebar.number_input("Valor Máximo de Margem")
 
-        novo = pd.read_csv(arquivo_novo, sep=',', encoding='latin1', low_memory=False)
-        
+        lista_novos = []
+        for arq in arquivo_novo:
+            df_novo = pd.read_csv(arq, sep=',', encoding='latin1', low_memory=False)
+            lista_novos.append(df_novo)
+
+        novo = pd.concat(lista_novos)
+
         # Padroniza CPF
         novo['CPF'] = novo['CPF'].str.replace(r'\D', '', regex=True)
 
@@ -149,6 +154,7 @@ if uploaded_files:
         
         novo_reduzido = novo[colunas_para_merge].drop_duplicates(subset='CPF')
 
+        # Botão de download dos arquivos novos combinados
         csv_novo = novo.to_csv(sep=';', index=False).encode('utf-8')
         st.sidebar.download_button(
             label="📥 Baixar Arquivo de Margem (Novo)",
@@ -173,8 +179,6 @@ if uploaded_files:
         # Reordena conforme desejado
         base_final = base_final[colunas_finais]
         data_hoje = datetime.today().strftime('%d%m%Y')
-
-
         base_final['Campanha'] = base_final['Convenio'].str.lower() + '_' + data_hoje + '_benef_' + equipe
 
         
