@@ -44,7 +44,7 @@ st.sidebar.write("---")
 
 # Upload do segundo arquivo adicional (ex: dados extras como 'novo')
 st.sidebar.subheader("📂 Arquivos com Margem")
-arquivo_novo = st.sidebar.file_uploader("Arquivo com margem (opcional)", type="csv")
+arquivo_novo = st.sidebar.file_uploader("Arquivo com margem (opcional)", type="csv", accept_multiple_files=True)
 
 st.sidebar.write("---")
 
