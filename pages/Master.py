@@ -58,7 +58,7 @@ equipe = st.sidebar.selectbox("Selecione a Equipe", equipes_konsi)
 if uploaded_files:
     lista = []
     for uploaded_file in uploaded_files:
-        df = pd.read_csv(uploaded_file, sep=',', encoding='latin1', low_memory=False)
+        df = pd.read_csv(uploaded_file, sep=',', encoding='latin1', low_memory=False, accept_multiple_files=True)
         lista.append(df)
 
     base = pd.concat(lista)
