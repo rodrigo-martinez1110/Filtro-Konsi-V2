@@ -146,20 +146,20 @@ if uploaded_files:
         novo['CPF'] = novo['CPF'].str.replace(r'\D', '', regex=True)
 
         # Filtro conforme critério
-        novo = novo.loc[novo['MG_Emprestimo_Disponivel'] < 100]
+        novo = novo.loc[novo['MG_Emprestimo_Disponivel'] < valor_limite]
 
         # Colunas que queremos puxar do novo
         colunas_para_merge = ['CPF', 'MG_Emprestimo_Total', 'MG_Emprestimo_Disponivel',
                             'Vinculo_Servidor', 'Lotacao', 'Secretaria']
         
-        novo_reduzido = novo[colunas_para_merge].drop_duplicates(subset='CPF')
+        novo = novo[colunas_para_merge].drop_duplicates(subset='CPF')
 
         # Botão de download dos arquivos novos combinados
         csv_novo = novo.to_csv(sep=';', index=False).encode('utf-8')
         st.sidebar.download_button(
             label="📥 Baixar Arquivo de Margem (Novo)",
             data=csv_novo,
-            file_name='ARQUIVO_MARGEM.csv',
+            file_name=f'{convenio} - MG EMPRESTIMO.csv',
             mime='text/csv'
         )
 
@@ -197,7 +197,7 @@ if uploaded_files:
     st.download_button(
         label="📥 Baixar Resultado CSV",
         data=csv,
-        file_name='GOV_SP_BENEFICIO.csv',
+        file_name=f'{convenio} BENEFICIO - {equipe}.csv',
         mime='text/csv'
     )
 
