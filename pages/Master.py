@@ -149,6 +149,14 @@ if uploaded_files:
         
         novo_reduzido = novo[colunas_para_merge].drop_duplicates(subset='CPF')
 
+        csv_novo = novo.to_csv(sep=';', index=False).encode('utf-8')
+        st.sidebar.download_button(
+            label="📥 Baixar Arquivo de Margem (Novo)",
+            data=csv_novo,
+            file_name='ARQUIVO_MARGEM.csv',
+            mime='text/csv'
+        )
+
         # Faz o merge com sufixo para não sobrescrever
         base_final = base_final.merge(novo_reduzido, on='CPF', how='left', suffixes=('', '_novo'))
 
@@ -169,13 +177,7 @@ if uploaded_files:
 
         base_final['Campanha'] = base_final['Convenio'].str.lower() + '_' + data_hoje + '_benef_' + equipe
 
-        csv_novo = novo.to_csv(sep=';', index=False).encode('utf-8')
-        st.sidebar.download_button(
-            label="📥 Baixar Arquivo de Margem (Novo)",
-            data=csv_novo,
-            file_name='ARQUIVO_MARGEM.csv',
-            mime='text/csv'
-        )
+        
 
     
 
