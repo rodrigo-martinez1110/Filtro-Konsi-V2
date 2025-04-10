@@ -164,7 +164,7 @@ if uploaded_files:
         )
 
         # Faz o merge com sufixo para não sobrescrever
-        base_final = base_final.merge(novo_reduzido, on='CPF', how='left', suffixes=('', '_novo'))
+        base_final = base_final.merge(novo, on='CPF', how='left', suffixes=('', '_novo'))
 
         # Substitui se vier valor do arquivo novo
         for col in ['MG_Emprestimo_Total', 'MG_Emprestimo_Disponivel', 'Vinculo_Servidor', 'Lotacao', 'Secretaria']:
