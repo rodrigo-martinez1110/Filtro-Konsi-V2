@@ -19,6 +19,8 @@ def filtro_beneficio(base, convenio, quant_bancos, comissao_minima, margem_empre
         usou_beneficio = base.loc[base['margem_beneficio_usado'] > 0]
         base = base.loc[base['MG_Beneficio_Saque_Disponivel'] == base['MG_Beneficio_Saque_Total']]
         base = base[base['Lotacao'] != "ALESP"]
+    elif convenio != 'prefrj' and convenio != 'govpi' and convenio != 'goval' and convenio != "govce" and convenio == 'govam':
+        base = base.loc[base['MG_Beneficio_Saque_Disponivel'] == base['MG_Beneficio_Saque_Total']]
 
     if selecao_lotacao:
         base = base.loc[~base['Lotacao'].isin(selecao_lotacao)]
@@ -27,8 +29,7 @@ def filtro_beneficio(base, convenio, quant_bancos, comissao_minima, margem_empre
     
 
     # Convênios que não precisa ser virgem na margem beneficio
-    elif convenio != 'prefrj' and convenio != 'govpi' and convenio != 'goval' and convenio != "govce" and convenio == 'govam':
-        base = base.loc[base['MG_Beneficio_Saque_Disponivel'] == base['MG_Beneficio_Saque_Total']]
+    
     
     
     base = base.sort_values(by='MG_Beneficio_Saque_Disponivel', ascending = False)
