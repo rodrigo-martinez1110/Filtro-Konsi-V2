@@ -9,29 +9,25 @@ def filtro_beneficio(base, convenio, quant_bancos, comissao_minima, margem_empre
         return pd.DataFrame()
     
     base = base.iloc[:, :26]
-
+    base['CPF'] = base['CPF'].str.replace(".", "", regex=False).str.replace("-", "", regex=False)
 
     if 'Nome_Cliente' in base.columns and base['Nome_Cliente'].notna().any():
         base['Nome_Cliente'] = base['Nome_Cliente'].apply(lambda x: x.title() if isinstance(x, str) else x)
-
-    base['CPF'] = base['CPF'].str.replace(".", "", regex=False).str.replace("-", "", regex=False)
-
-    if selecao_lotacao:
-        base = base.loc[~base['Lotacao'].isin(selecao_lotacao)]
-    if selecao_vinculos:
-        base = base.loc[~base['Vinculo_Servidor'].isin(selecao_vinculos)]
-
 
     if convenio == 'govsp':
         base['margem_beneficio_usado'] = base['MG_Beneficio_Saque_Total'] - base['MG_Beneficio_Saque_Disponivel']
         usou_beneficio = base.loc[base['margem_beneficio_usado'] > 0]
         base = base.loc[base['MG_Beneficio_Saque_Disponivel'] == base['MG_Beneficio_Saque_Total']]
         base = base[base['Lotacao'] != "ALESP"]
+
+    if selecao_lotacao:
+        base = base.loc[~base['Lotacao'].isin(selecao_lotacao)]
+    if selecao_vinculos:
+        base = base.loc[~base['Vinculo_Servidor'].isin(selecao_vinculos)]
     
 
     # Convênios que não precisa ser virgem na margem beneficio
     elif convenio != 'prefrj' and convenio != 'govpi' and convenio != 'goval' and convenio != "govce" and convenio == 'govam':
-        st.write("teste")
         base = base.loc[base['MG_Beneficio_Saque_Disponivel'] == base['MG_Beneficio_Saque_Total']]
     
     
