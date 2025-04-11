@@ -19,7 +19,10 @@ def filtro_beneficio(base, convenio, quant_bancos, comissao_minima, margem_empre
         usou_beneficio = base.loc[base['margem_beneficio_usado'] > 0]
         base = base.loc[base['MG_Beneficio_Saque_Disponivel'] == base['MG_Beneficio_Saque_Total']]
         base = base[base['Lotacao'] != "ALESP"]
-    elif convenio != 'prefrj' and convenio != 'govpi' and convenio != 'goval' and convenio != "govce":
+
+    
+    conv_excluidos = ['prefrj', 'govpi', 'goval', 'govce']     # Convenios que não precisa ter TOTAL = DISPONIVEL
+    if convenio not in conv_excluidos:
         base = base.loc[base['MG_Beneficio_Saque_Disponivel'] == base['MG_Beneficio_Saque_Total']]
 
     if selecao_lotacao:
