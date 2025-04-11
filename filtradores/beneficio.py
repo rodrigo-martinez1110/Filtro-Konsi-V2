@@ -31,6 +31,7 @@ def filtro_beneficio(base, convenio, quant_bancos, comissao_minima, margem_empre
 
     # Convênios que não precisa ser virgem na margem beneficio
     elif convenio != 'prefrj' and convenio != 'govpi' and convenio != 'goval' and convenio != "govce" and convenio == 'govam':
+        st.write("teste")
         base = base.loc[base['MG_Beneficio_Saque_Disponivel'] == base['MG_Beneficio_Saque_Total']]
     
     
