@@ -10,7 +10,6 @@ def filtro_beneficio(base, convenio, quant_bancos, comissao_minima, margem_empre
     
     base = base.iloc[:, :26]
 
-    convenio = base['Convenio']
 
     if 'Nome_Cliente' in base.columns and base['Nome_Cliente'].notna().any():
         base['Nome_Cliente'] = base['Nome_Cliente'].apply(lambda x: x.title() if isinstance(x, str) else x)
