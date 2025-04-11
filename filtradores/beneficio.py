@@ -194,4 +194,5 @@ def filtro_beneficio(base, convenio, quant_bancos, comissao_minima, margem_empre
 
 
     st.write(base.shape)
+    st.write(convenio)
     return base
