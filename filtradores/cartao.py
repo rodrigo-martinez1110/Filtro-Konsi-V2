@@ -25,8 +25,8 @@ def filtro_cartao(base, convenio, quant_bancos, comissao_minima, margem_empresti
         base['margem_cartao_usado'] = base['MG_Cartao_Total'] - base['MG_Cartao_Disponivel']
         usou_cartao = base.loc[base['margem_cartao_usado'] > 0]
         base = base.loc[base['MG_Cartao_Disponivel'] == base['MG_Cartao_Total']]
-        
-    base = base.loc[base['MG_Cartao_Disponivel'] == base['MG_Cartao_Total']]
+    else:
+        base = base.loc[base['MG_Cartao_Disponivel'] == base['MG_Cartao_Total']]
 
     # Criar uma máscara para rastrear linhas já tratadas
     base['tratado'] = False
