@@ -2,7 +2,7 @@ import pandas as pd
 import streamlit as st
 from datetime import datetime
 
-def filtro_novo(base, convenio, quant_bancos, comissao_minima, saque_minimo, margem_emprestimo_limite, selecao_lotacao, selecao_vinculos, configuracoes):
+def filtro_novo(base, convenio, quant_bancos, comissao_minima, margem_emprestimo_limite, selecao_lotacao, selecao_vinculos, configuracoes):
     if base.empty:
         st.error("Erro: A base está vazia!")
         return pd.DataFrame()
@@ -61,8 +61,6 @@ def filtro_novo(base, convenio, quant_bancos, comissao_minima, saque_minimo, mar
             base.loc[mask, 'valor_parcela_emprestimo'] = (base.loc[mask, 'MG_Emprestimo_Disponivel'] * 0.95 * coeficiente).round(2)
         else:
             base.loc[mask, 'valor_liberado_emprestimo'] = (base.loc[mask, 'MG_Emprestimo_Disponivel'] * coeficiente).round(2)
-        
-        
         base.loc[mask, 'comissao_emprestimo'] = (base.loc[mask, 'valor_liberado_emprestimo'] * comissao).round(2)
         base.loc[mask, 'banco_emprestimo'] = banco
 

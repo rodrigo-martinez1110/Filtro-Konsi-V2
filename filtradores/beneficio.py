@@ -3,7 +3,7 @@ import streamlit as st
 from datetime import datetime
 import re
 
-def filtro_beneficio(base, convenio, quant_bancos, comissao_minima, limite_cartao, margem_emprestimo_limite, selecao_lotacao, selecao_vinculos, configuracoes):
+def filtro_beneficio(base, convenio, quant_bancos, comissao_minima, margem_emprestimo_limite, selecao_lotacao, selecao_vinculos, configuracoes):
     if base.empty:
         st.error("Erro: A base está vazia!")
         return pd.DataFrame()
@@ -147,7 +147,7 @@ def filtro_beneficio(base, convenio, quant_bancos, comissao_minima, limite_carta
     base = base.drop_duplicates(subset='CPF')
 
     colunas_adicionais = [
-        'FONE1', 'FONE2', 'FONE3', 'FONE4', 'limite_beneficio',
+        'FONE1', 'FONE2', 'FONE3', 'FONE4',
         'valor_liberado_emprestimo', 'valor_liberado_cartao',
         'comissao_emprestimo', 'comissao_cartao',
         'valor_parcela_emprestimo', 'valor_parcela_cartao',
@@ -166,7 +166,7 @@ def filtro_beneficio(base, convenio, quant_bancos, comissao_minima, limite_carta
         'MG_Beneficio_Saque_Total', 'MG_Beneficio_Saque_Disponivel',
         'MG_Cartao_Total', 'MG_Cartao_Disponivel',
         'Convenio', 'Vinculo_Servidor', 'Lotacao', 'Secretaria',
-        'FONE1', 'FONE2', 'FONE3', 'FONE4', 'limite_beneficio',
+        'FONE1', 'FONE2', 'FONE3', 'FONE4',
         'valor_liberado_emprestimo', 'valor_liberado_beneficio', 'valor_liberado_cartao',
         'comissao_emprestimo', 'comissao_beneficio', 'comissao_cartao',
         'valor_parcela_emprestimo', 'valor_parcela_beneficio', 'valor_parcela_cartao',

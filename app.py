@@ -31,7 +31,6 @@ if arquivos:
         # Seleção do tipo de campanha
         st.sidebar.title("Configurações Iniciais")
         campanha = st.sidebar.selectbox("Tipo da Campanha:", ['Novo', 'Benefício', 'Cartão', 'Benefício & Cartão'])
-        
         if campanha == 'Benefício & Cartão':
             quantidade_de_bancos = 2
         else:
@@ -110,9 +109,6 @@ if arquivos:
                             st.error("Por favor, insira um valor numérico válido.")
                             coeficiente_parcela = None  # Ou qualquer outro valor padrão ou erro
 
-                        limite_cartao = st.text_input(f"Limite do cartão {i+1}: ", key=f"coeficiente_limite{i}")
-                        limite_cartao = limite_cartao.replace(",", ".")
-
                         margem_minima_cartao = st.number_input(f"Margem Mínima {opcao} {i + 1}:",
                                                            min_value=0.0,
                                                            max_value=10000.0,
@@ -138,7 +134,6 @@ if arquivos:
 
                         if campanha == 'Novo':
                             margem_seguranca = st.checkbox("Margem Segurança", value=False, key=f"margem_seguranca{i}")
-                            #saque_minimo = st.number_input(f"Saque mínimo banco {i + 1}: ") 
 
                         if campanha == 'Benefício' or campanha == 'Cartão':
                             coeficiente_parcela_str = st.text_input(f"Coeficiente da Parcela Banco {i + 1}:", key=f"coeficiente_parcela{i}")
@@ -151,9 +146,6 @@ if arquivos:
                             except ValueError:
                                 st.error("Por favor, insira um valor numérico válido.")
                                 coeficiente_parcela = None  # Ou qualquer outro valor padrão ou erro
-                            
-                            # limite_cartao = st.text_input(f"Limite do cartão {i+1}: ", key=f"coeficiente_limite{i}")
-                            # limite_cartao = limite_cartao.replace(",", ".")
                     
                     
 
@@ -232,18 +224,18 @@ if arquivos:
                                                     comissao_minima, margem_emprestimo_limite, selecao_lotacao,
                                                     selecao_vinculos, configuracoes)
                 elif campanha == 'Benefício':
-                    base_filtrada = filtro_beneficio(base, convenio, quant_bancos, comissao_minima,limite_cartao, margem_emprestimo_limite, 
+                    base_filtrada = filtro_beneficio(base, convenio, quant_bancos, comissao_minima, margem_emprestimo_limite, 
                                                      selecao_lotacao, selecao_vinculos, configuracoes)
                     
                 elif campanha == 'Cartão':
                     base_filtrada = filtro_cartao(base, convenio, quant_bancos,
-                                                  comissao_minima,limite_cartao, margem_emprestimo_limite,
+                                                  comissao_minima, margem_emprestimo_limite,
                                                   selecao_lotacao, selecao_vinculos,
                                                   configuracoes)
                 
                 elif campanha == 'Benefício & Cartão':
                     base_filtrada = filtro_beneficio_e_cartao(base, convenio, quant_bancos,
-                                                              comissao_minima,limite_cartao, margem_emprestimo_limite,
+                                                              comissao_minima, margem_emprestimo_limite,
                                                               selecao_lotacao, selecao_vinculos,
                                                               configuracoes)
 
