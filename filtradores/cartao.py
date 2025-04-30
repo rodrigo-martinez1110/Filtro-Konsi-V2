@@ -2,7 +2,7 @@ import pandas as pd
 import streamlit as st
 from datetime import datetime
 
-def filtro_cartao(base, convenio, quant_bancos, comissao_minima, margem_emprestimo_limite, selecao_lotacao, selecao_vinculos, configuracoes):
+def filtro_cartao(base, convenio, data_limite, quant_bancos, comissao_minima, margem_emprestimo_limite, selecao_lotacao, selecao_vinculos, configuracoes):
     if base.empty:
         st.error("Erro: A base está vazia!")
         return pd.DataFrame()
@@ -69,6 +69,10 @@ def filtro_cartao(base, convenio, quant_bancos, comissao_minima, margem_empresti
 
     base = base.sort_values(by='valor_liberado_cartao', ascending=False)
     base = base.drop_duplicates(subset='CPF')
+
+    # Filtrar pela idade (Caso tenha coluna de Data de Nascimento)
+    if data_limite:
+        base = base[pd.to_datetime(base["Data_Nascimento"], dayfirst=True).dt.date >= data_limite]
 
     colunas_adicionais = [
         'FONE1', 'FONE2', 'FONE3', 'FONE4',

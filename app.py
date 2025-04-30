@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 from juntar_bases import juntar_bases
+from datetime import datetime, timedelta
+
 
 from filtradores.novo import filtro_novo
 from filtradores.beneficio import filtro_beneficio
@@ -70,10 +72,19 @@ if arquivos:
         if quant_bancos > 0:
             configuracoes = []
             st.header("Configurações dos Bancos")
+            idade_max = st.sidebar.number_input("Idade máxima", 0, 120, 72, step=1, key='idade_max1')
+            hoje = datetime.today()
+            data_limite = (hoje - pd.DateOffset(years=idade_max)).date()
 
             # Loop dinâmico para configurar cada banco
             for i in range(quant_bancos):
                 with st.expander(f"Configurações do Banco {i + 1}"):
+                    data_limite = None
+                    if not base['Data_Nascimento'].isna().any():
+                        st.sidebar.write("---")
+                        
+                        
+
                     if campanha == 'Benefício & Cartão':
                         opcao = st.radio("Escolha o tipo de cartão:", ['Benefício', 'Consignado'],
                                          key=f'opcao{i}')
@@ -147,7 +158,6 @@ if arquivos:
                                 st.error("Por favor, insira um valor numérico válido.")
                                 coeficiente_parcela = None  # Ou qualquer outro valor padrão ou erro
                     
-                    
 
                     
                     # Escolha de coluna condicional
@@ -220,21 +230,21 @@ if arquivos:
             st.write(campanha)
             if st.button("Aplicar configurações"): 
                 if campanha == 'Novo':
-                    base_filtrada = filtro_novo(base, convenio, quant_bancos,
+                    base_filtrada = filtro_novo(base, convenio, data_limite, quant_bancos,
                                                     comissao_minima, margem_emprestimo_limite, selecao_lotacao,
                                                     selecao_vinculos, configuracoes)
                 elif campanha == 'Benefício':
-                    base_filtrada = filtro_beneficio(base, convenio, quant_bancos, comissao_minima, margem_emprestimo_limite, 
+                    base_filtrada = filtro_beneficio(base, convenio, data_limite, quant_bancos, comissao_minima, margem_emprestimo_limite, 
                                                      selecao_lotacao, selecao_vinculos, configuracoes)
                     
                 elif campanha == 'Cartão':
-                    base_filtrada = filtro_cartao(base, convenio, quant_bancos,
+                    base_filtrada = filtro_cartao(base, convenio, data_limite, quant_bancos,
                                                   comissao_minima, margem_emprestimo_limite,
                                                   selecao_lotacao, selecao_vinculos,
                                                   configuracoes)
                 
                 elif campanha == 'Benefício & Cartão':
-                    base_filtrada = filtro_beneficio_e_cartao(base, convenio, quant_bancos,
+                    base_filtrada = filtro_beneficio_e_cartao(base, convenio, data_limite, quant_bancos,
                                                               comissao_minima, margem_emprestimo_limite,
                                                               selecao_lotacao, selecao_vinculos,
                                                               configuracoes)

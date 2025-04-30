@@ -3,7 +3,7 @@ import streamlit as st
 from datetime import datetime
 import re
 
-def filtro_beneficio(base, convenio, quant_bancos, comissao_minima, margem_emprestimo_limite, selecao_lotacao, selecao_vinculos, configuracoes):
+def filtro_beneficio(base, convenio, data_limite, quant_bancos, comissao_minima, margem_emprestimo_limite, selecao_lotacao, selecao_vinculos, configuracoes):
     if base.empty:
         st.error("Erro: A base está vazia!")
         return pd.DataFrame()
@@ -155,7 +155,9 @@ def filtro_beneficio(base, convenio, quant_bancos, comissao_minima, margem_empre
         'prazo_emprestimo', 'prazo_cartao', 'Campanha'
     ]
 
-
+    # Filtrar pela idade (Caso tenha coluna de Data de Nascimento)
+    if data_limite:
+        base = base[pd.to_datetime(base["Data_Nascimento"], dayfirst=True).dt.date >= data_limite]
 
     for coluna in colunas_adicionais:
         base[coluna] = ""
