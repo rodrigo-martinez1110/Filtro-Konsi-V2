@@ -249,9 +249,7 @@ if arquivos:
                                                               selecao_lotacao, selecao_vinculos,
                                                               configuracoes)
 
-                    
 
-                
                 def convert_df(df):
                     return df.to_csv(index=False, sep = ';').encode('utf-8')
 
