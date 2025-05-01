@@ -72,9 +72,10 @@ if arquivos:
         if quant_bancos > 0:
             configuracoes = []
             st.header("Configurações dos Bancos")
-            idade_max = st.sidebar.number_input("Idade máxima", 0, 120, 72, step=1, key='idade_max1')
-            hoje = datetime.today()
-            data_limite = (hoje - pd.DateOffset(years=idade_max)).date()
+            if not base['Data_Nascimento'].isna().any():
+              idade_max = st.sidebar.number_input("Idade máxima", 0, 120, 72, step=1, key='idade_max1')
+              hoje = datetime.today()
+              data_limite = (hoje - pd.DateOffset(years=idade_max)).date()
 
             # Loop dinâmico para configurar cada banco
             for i in range(quant_bancos):
