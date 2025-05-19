@@ -58,16 +58,17 @@ def filtro_novo(base, convenio,data_limite, quant_bancos, comissao_minima, marge
 
         if margem_seguranca:
             base.loc[mask, 'valor_liberado_emprestimo'] = (base.loc[mask, 'MG_Emprestimo_Disponivel'] * 0.95 * coeficiente).round(2)
-            base.loc[mask, 'valor_parcela_emprestimo'] = (base.loc[mask, 'MG_Emprestimo_Disponivel'] * 0.95 * coeficiente).round(2)
+            base.loc[mask, 'valor_parcela_emprestimo'] = (base.loc[mask, 'MG_Emprestimo_Disponivel'] * 0.95).round(2)
         else:
             base.loc[mask, 'valor_liberado_emprestimo'] = (base.loc[mask, 'MG_Emprestimo_Disponivel'] * coeficiente).round(2)
+            base.loc[mask, 'valor_parcela_emprestimo'] = base['MG_Emprestimo_Disponivel']
         base.loc[mask, 'comissao_emprestimo'] = (base.loc[mask, 'valor_liberado_emprestimo'] * comissao).round(2)
         base.loc[mask, 'banco_emprestimo'] = banco
 
         base.loc[mask, 'prazo_emprestimo'] = parcelas
         base['prazo_emprestimo'] = base['prazo_emprestimo'].astype(str).replace(".0", "")
 
-        base.loc[mask, 'valor_parcela_emprestimo'] = base['MG_Emprestimo_Disponivel']
+        
 
         # Marcar essas linhas como tratadas
         base.loc[mask, 'tratado'] = True
