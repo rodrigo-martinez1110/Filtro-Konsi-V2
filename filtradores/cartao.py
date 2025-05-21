@@ -117,15 +117,17 @@ def filtro_cartao(base, convenio, data_limite, quant_bancos, comissao_minima, ma
     base = base.drop(columns=['tratado'], errors='ignore')
 
     data_hoje = datetime.today().strftime('%d%m%Y')
-    base['Campanha'] = convenio + "_" + data_hoje + "_" + "cartao" + "_" + equipes
+
+    # Começa preenchendo TODAS as linhas com a equipe padrão
+    base['Campanha'] = f"{convenio}_{data_hoje}_cartao_{equipes}"
+
+    # Aplica "convai" em uma amostra aleatória proporcional
     if convai > 0:
         n_convai = int((convai / 100) * len(base))
-        
-        # Amostra aleatória de índices
         indices_convai = base.sample(n=n_convai, random_state=42).index
-        
-        # Aplica a tag "convai" apenas nessas linhas
-        base.loc[indices_convai, 'Campanha'] = convenio + "_" + data_hoje + "_" + "cartao" + "_" + "convai"
+
+        # Substitui a equipe pelo sufixo convai nas linhas selecionadas
+        base.loc[indices_convai, 'Campanha'] = f"{convenio}_{data_hoje}_cartao_convai"
 
 
     st.write(base.shape)
