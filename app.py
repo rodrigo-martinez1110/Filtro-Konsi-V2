@@ -14,7 +14,7 @@ st.set_page_config(layout="wide",
                    page_title='Filtrador de Campanhas V2')
 
 # Listas e configurações iniciais
-lista_codigos_bancos = ['2', '33', '74', '243', '422', '465', '623', '643', '707', '955', '6613']
+lista_codigos_bancos = ['2', '33', '74', '243', '318', '422', '465', '623', '643', '707', '955', '6613']
 colunas_condicao = ['Vinculo_Servidor', 'Lotacao', 'Secretaria', 'Aplicar a toda a base']  # Adicionando a opção de aplicar a toda a base
 
 st.title("Filtro de Campanhas - Konsi")
@@ -129,7 +129,11 @@ if arquivos:
                                                            value=30.0)
 
                     else:
-                        somar_margem_compra = st.checkbox("Usar margem compra (GOV AM)", key=f'checkbox_compra{i}') 
+                        if convenio == 'govam':
+                            somar_margem_compra = st.checkbox("Usar margem compra (GOV AM)", key=f'checkbox_compra{i}')
+                        else:
+                            somar_margem_compra = False
+                            
                         banco = st.selectbox(f"Selecione o Banco {i + 1}:",
                                 options=lista_codigos_bancos, 
                                 key=f"banco_{i}_{campanha}")
@@ -145,7 +149,13 @@ if arquivos:
                         parcelas = st.number_input(f"Parcelas Banco {i + 1}:", min_value=1, max_value=200, step=1, key=f"parcelas_{i}")
 
                         if campanha == 'Novo':
-                            margem_seguranca = st.checkbox("Margem Segurança", value=False, key=f"margem_seguranca{i}")
+                            col1, col2 = st.columns(2)
+                            with col1:
+                                margem_seguranca = st.checkbox("Margem Segurança", value=False, key=f"margem_seguranca_bool{i}")
+                                if margem_seguranca:
+                                    with col1:
+                                        margem_seguranca = st.number_input("Valor percentual da Margem de Segurança", min_value=0.0, max_value=100.0, step=0.01, key=f"margem_seguranca{i}")
+                                        margem_seguranca = 1 - (margem_seguranca / 100) 
 
                         if campanha == 'Benefício' or campanha == 'Cartão':
                             coeficiente_parcela_str = st.text_input(f"Coeficiente da Parcela Banco {i + 1}:", key=f"coeficiente_parcela{i}")
