@@ -195,7 +195,7 @@ def filtro_beneficio(base, convenio, data_limite, quant_bancos, comissao_minima,
     data_hoje = datetime.today().strftime('%d%m%Y')
 
     # Começa preenchendo TODAS as linhas com a equipe padrão
-    base['Campanha'] = f"{convenio}_{data_hoje}_novo_{equipes}"
+    base['Campanha'] = f"{convenio}_{data_hoje}_benef_{equipes}"
 
     # Aplica "convai" em uma amostra aleatória proporcional
     if convai > 0:
