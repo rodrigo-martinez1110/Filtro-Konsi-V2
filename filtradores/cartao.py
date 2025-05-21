@@ -125,7 +125,7 @@ def filtro_cartao(base, convenio, data_limite, quant_bancos, comissao_minima, ma
         indices_convai = base.sample(n=n_convai, random_state=42).index
         
         # Aplica a tag "convai" apenas nessas linhas
-        base.loc[indices_convai, 'Campanha'] = convenio + "_" + data_hoje + "_" + "cartao" + "_" + equipes
+        base.loc[indices_convai, 'Campanha'] = convenio + "_" + data_hoje + "_" + "cartao" + "_" + "convai"
 
 
     st.write(base.shape)
