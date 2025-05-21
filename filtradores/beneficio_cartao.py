@@ -2,7 +2,7 @@ import pandas as pd
 import streamlit as st
 from datetime import datetime
 
-def filtro_beneficio_e_cartao(base, convenio, data_limite, quant_bancos, comissao_minima, margem_emprestimo_limite, selecao_lotacao, selecao_vinculos, configuracoes):
+def filtro_beneficio_e_cartao(base, convenio, data_limite, quant_bancos, comissao_minima, margem_emprestimo_limite, selecao_lotacao, selecao_vinculos, convai, equipes, configuracoes):
     if base.empty:
         st.error("Erro: A base está vazia!")
         return pd.DataFrame()
@@ -229,7 +229,15 @@ def filtro_beneficio_e_cartao(base, convenio, data_limite, quant_bancos, comissa
     base = base.drop(columns=['tratado'], errors='ignore')
 
     data_hoje = datetime.today().strftime('%d%m%Y')
-    base['Campanha'] = convenio + "_" + data_hoje + "_" + "benef&cartao" + "_" + "outbound"
+    base['Campanha'] = convenio + "_" + data_hoje + "_" + "benef&cartao" + "_" + equipes
+    if convai > 0:
+        n_convai = int((convai / 100) * len(base))
+        
+        # Amostra aleatória de índices
+        indices_convai = base.sample(n=n_convai, random_state=42).index
+        
+        # Aplica a tag "convai" apenas nessas linhas
+        base.loc[indices_convai, 'Campanha'] = convenio + "_" + data_hoje + "_" + "benef&cartao" + "_" + equipes
 
     st.write(base.shape)
     return base

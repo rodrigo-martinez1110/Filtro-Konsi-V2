@@ -1,8 +1,9 @@
 import pandas as pd
 import streamlit as st
 from datetime import datetime
+import numpy as np
 
-def filtro_novo(base, convenio,data_limite, quant_bancos, comissao_minima, margem_emprestimo_limite, selecao_lotacao, selecao_vinculos, configuracoes):
+def filtro_novo(base, convenio,data_limite, quant_bancos, comissao_minima, margem_emprestimo_limite, selecao_lotacao, selecao_vinculos, convai, equipes, configuracoes):
     if base.empty:
         st.error("Erro: A base está vazia!")
         return pd.DataFrame()
@@ -102,7 +103,17 @@ def filtro_novo(base, convenio,data_limite, quant_bancos, comissao_minima, marge
         base[coluna] = ""
 
     data_hoje = datetime.today().strftime('%d%m%Y')
-    base['Campanha'] = convenio + "_" + data_hoje + "_" + "novo" + "_" + "outbound"
+    base['Campanha'] = convenio + "_" + data_hoje + "_" + "novo" + "_" + equipes
+    if convai > 0:
+        n_convai = int((convai / 100) * len(base))
+        
+        # Amostra aleatória de índices
+        indices_convai = base.sample(n=n_convai, random_state=42).index
+        
+        # Aplica a tag "convai" apenas nessas linhas
+        base.loc[indices_convai, 'Campanha'] = convenio + "_" + data_hoje + "_" + "novo" + "_" + equipes
+
+
     # Seleção final de colunas
     colunas = [
         'Origem_Dado', 'Nome_Cliente', 'Matricula', 'CPF', 'Data_Nascimento',

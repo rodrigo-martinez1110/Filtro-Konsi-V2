@@ -29,43 +29,58 @@ if arquivos:
         st.write("Prévia dos dados carregados:")
         st.write(base.head(50))
         
-
         # Seleção do tipo de campanha
-        st.sidebar.title("Configurações Iniciais")
-        campanha = st.sidebar.selectbox("Tipo da Campanha:", ['Novo', 'Benefício', 'Cartão', 'Benefício & Cartão'])
-        if campanha == 'Benefício & Cartão':
-            quantidade_de_bancos = 2
-        else:
-            quantidade_de_bancos = 1
-        # Seleção da quantidade de bancos
-        quant_bancos = st.sidebar.number_input("Quantidade de Bancos:", min_value=1, max_value=10, step=1, value=quantidade_de_bancos)
-
-        comissao_minima = st.sidebar.number_input(f"Comissão mínima da campanha {campanha}:")
-        margem_emprestimo_limite = st.sidebar.number_input(f"Margem de empréstimo limite da campanha {campanha}:")
-
-        st.write("------")
-
-        botao_lotacao = st.sidebar.checkbox("Retirar lotações")
-
-        convenio = base.loc[1, 'Convenio']
-        lotacao = list(base['Lotacao'].unique())
-        vinculo = list(base['Vinculo_Servidor'].unique())
-
-        selecao_lotacao = None
-        selecao_vinculos = None
-
-        if botao_lotacao:
-            selecao_lotacao = st.sidebar.multiselect(
-                f"Selecione as lotações que deseja excluir do convênio {convenio}",
-                options=lotacao
+        st.sidebar.write("---")
+        with st.sidebar.expander("Configurações iniciais"):
+            campanha = st.selectbox(
+                "Tipo da Campanha:",
+                ['Novo', 'Benefício', 'Cartão', 'Benefício & Cartão'],
+                key="selectbox_tipo_campanha"
             )
 
-        botao_vinculo = st.sidebar.checkbox("Retirar vínculos")
-        if botao_vinculo:
-            selecao_vinculos = st.sidebar.multiselect(
-                f"Selecione os vínculos que deseja excluir do convênio {convenio}",
-                options=vinculo
+
+            if campanha == 'Benefício & Cartão':
+                quantidade_de_bancos = 2
+            else:
+                quantidade_de_bancos = 1
+            # Seleção da quantidade de bancos
+            quant_bancos = st.number_input("Quantidade de Bancos:", min_value=1, max_value=10, step=1, value=quantidade_de_bancos)
+
+            comissao_minima = st.number_input(f"Comissão mínima da campanha {campanha}:")
+            margem_emprestimo_limite = st.number_input(f"Margem de empréstimo limite da campanha {campanha}:")
+
+
+            botao_lotacao = st.checkbox("Retirar lotações")
+
+            convenio = base.loc[1, 'Convenio']
+            lotacao = list(base['Lotacao'].unique())
+            vinculo = list(base['Vinculo_Servidor'].unique())
+
+            selecao_lotacao = None
+            selecao_vinculos = None
+
+            if botao_lotacao:
+                selecao_lotacao = st.multiselect(
+                    f"Selecione as lotações que deseja excluir do convênio {convenio}",
+                    options=lotacao
+                )
+
+            botao_vinculo = st.checkbox("Retirar vínculos")
+            if botao_vinculo:
+                selecao_vinculos = st.multiselect(
+                    f"Selecione os vínculos que deseja excluir do convênio {convenio}",
+                    options=vinculo
+                )
+
+
+        with st.sidebar.expander("Equipes:"):
+            equipes = st.selectbox(
+                "Equipe da Campanha:",
+                ['outbound', 'csapp', 'csativacao', 'cscdx', 'csport', 'outbound_virada'],
+                key="selectbox_equipe_campanha"
             )
+            convai = st.number_input("Porcentagem com tag para a IA", 0.0, 100.0, step=1.0, key="convai_input", value=0.0)
+
 
 
         # Só mostrar a configuração de bancos após selecionar o número
@@ -133,7 +148,7 @@ if arquivos:
                             somar_margem_compra = st.checkbox("Usar margem compra (GOV AM)", key=f'checkbox_compra{i}')
                         else:
                             somar_margem_compra = False
-                            
+
                         banco = st.selectbox(f"Selecione o Banco {i + 1}:",
                                 options=lista_codigos_bancos, 
                                 key=f"banco_{i}_{campanha}")
@@ -243,21 +258,23 @@ if arquivos:
                 if campanha == 'Novo':
                     base_filtrada = filtro_novo(base, convenio, data_limite, quant_bancos,
                                                     comissao_minima, margem_emprestimo_limite, selecao_lotacao,
-                                                    selecao_vinculos, configuracoes)
+                                                    selecao_vinculos, convai, equipes,
+                                                    configuracoes)
                 elif campanha == 'Benefício':
                     base_filtrada = filtro_beneficio(base, convenio, data_limite, quant_bancos, comissao_minima, margem_emprestimo_limite, 
-                                                     selecao_lotacao, selecao_vinculos, configuracoes)
+                                                     selecao_lotacao, selecao_vinculos, convai, equipes,
+                                                    configuracoes)
                     
                 elif campanha == 'Cartão':
                     base_filtrada = filtro_cartao(base, convenio, data_limite, quant_bancos,
                                                   comissao_minima, margem_emprestimo_limite,
-                                                  selecao_lotacao, selecao_vinculos,
+                                                  selecao_lotacao, selecao_vinculos, convai, equipes,
                                                   configuracoes)
                 
                 elif campanha == 'Benefício & Cartão':
                     base_filtrada = filtro_beneficio_e_cartao(base, convenio, data_limite, quant_bancos,
                                                               comissao_minima, margem_emprestimo_limite,
-                                                              selecao_lotacao, selecao_vinculos,
+                                                              selecao_lotacao, selecao_vinculos, convai, equipes,
                                                               configuracoes)
 
 
