@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from juntar_bases import juntar_bases
 from datetime import datetime, timedelta
+import numpy
 
 
 from filtradores.novo import filtro_novo
