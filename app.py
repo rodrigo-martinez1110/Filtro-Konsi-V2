@@ -15,7 +15,7 @@ st.set_page_config(layout="wide",
                    page_title='Filtrador de Campanhas V2')
 
 # Listas e configurações iniciais
-lista_codigos_bancos = ['2', '33', '74', '243', '318', '422', '465', '623', '643', '707', '955', '6613']
+lista_codigos_bancos = ['2', '33', '74', '243', '318', '422', '465', '623', '643', '654', '707', '955', '6613']
 colunas_condicao = ['Vinculo_Servidor', 'Lotacao', 'Secretaria', 'Aplicar a toda a base']  # Adicionando a opção de aplicar a toda a base
 
 st.title("Filtro de Campanhas - Konsi")
