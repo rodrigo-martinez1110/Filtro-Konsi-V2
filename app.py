@@ -14,28 +14,8 @@ st.set_page_config(layout="wide",
                    initial_sidebar_state='expanded',
                    page_title='Filtrador de Campanhas V2')
 
-
-bancos_mapeamento = {
-    "2 - MeuCashCard": "2",
-    "33 - Santander": "33",
-    "74 - Banco do Brasil": "74",
-    "243 - Banco Master": "243",
-    "318 - BMG": "318",
-    "335 - Banco Digio": "335",
-    "389 - Banco Mercantil": "389",
-    "422 - Banco Safra": "422",
-    "465 - Capital Consig": "465",
-    "604 - Banco Industrial": "604",
-    "623 - Banco PAN": "623",
-    "643 - Banco Pine": "643",
-    "654 - Banco DigiMais": "654",
-    "707- Banco Daycoval": "707",
-    "955 - Banco Olé": "955",
-    "6613 - VemCard": "6613"       # Check this code
-}
-
-lista_nomes_bancos = list(bancos_mapeamento.keys())
-
+# Listas e configurações iniciais
+lista_codigos_bancos = ['2', '33', '74', '243', '318', '422', '465', '623', '643', '707', '955', '6613']
 colunas_condicao = ['Vinculo_Servidor', 'Lotacao', 'Secretaria', 'Aplicar a toda a base']  # Adicionando a opção de aplicar a toda a base
 
 st.title("Filtro de Campanhas - Konsi")
