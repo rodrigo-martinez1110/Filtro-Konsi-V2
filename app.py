@@ -15,7 +15,26 @@ st.set_page_config(layout="wide",
                    page_title='Filtrador de Campanhas V2')
 
 # Listas e configurações iniciais
-lista_codigos_bancos = ['2', '33', '74', '243', '318', '422', '465', '623', '643', '707', '955', '6613']
+bancos_mapeamento = {
+    "2 - MeuCashCard": "2",
+    "33 - Santander": "33",
+    "74 - Banco do Brasil": "74",
+    "243 - Banco Master": "243",
+    "318 - BMG": "318",
+    "335 - Banco Digio": "335",
+    "389 - Banco Mercantil": "389",
+    "422 - Banco Safra": "422",
+    "465 - Capital Consig": "465",
+    "604 - Banco Industrial": "604",
+    "623 - Banco PAN": "623",
+    "643 - Banco Pine": "643",
+    "654 - Banco DigiMais": "654",
+    "707- Banco Daycoval": "707",
+    "955 - Banco Olé": "955",
+    "6613 - VemCard": "6613"
+}
+
+
 colunas_condicao = ['Vinculo_Servidor', 'Lotacao', 'Secretaria', 'Aplicar a toda a base']  # Adicionando a opção de aplicar a toda a base
 
 st.title("Filtro de Campanhas - Konsi")
@@ -106,7 +125,7 @@ if arquivos:
                         opcao = st.radio("Escolha o tipo de cartão:", ['Benefício', 'Consignado'],
                                          key=f'opcao{i}')
                         banco = st.selectbox(f"Selecione o Banco {i + 1}:", 
-                                            options=lista_nomes_bancos, 
+                                            options=list(bancos_mapeamento.keys()),
                                             key=f"banco_{i}")
                         banco = bancos_mapeamento[banco]
                         coeficiente = st.number_input(f"Coeficiente {opcao} no Banco {i+1}:",
@@ -152,10 +171,10 @@ if arquivos:
                             somar_margem_compra = False
 
                         banco = st.selectbox(f"Selecione o Banco {i + 1}:", 
-                                            options=lista_nomes_bancos, 
+                                            options=list(bancos_mapeamento.keys()),
                                             key=f"banco_{i}")
-                        
                         banco = bancos_mapeamento[banco]
+
                         coeficiente = st.number_input(f"Coeficiente Banco {i + 1}:",
                                                     min_value=0.0, max_value=100.0, step=0.01, 
                                                     key=f"coeficiente_{i}_{campanha}")  # Chave única   
